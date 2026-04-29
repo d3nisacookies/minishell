@@ -7,10 +7,11 @@
 
 #include "minishell.h"
 
+
 static int	count_args(char *input)
 {
-	int	count;
-	int	in_space;
+	int count;
+	int in_space;
 
 	count = 0;
 	in_space = 1;
@@ -30,11 +31,11 @@ static int	count_args(char *input)
 
 t_cmd	*parse_command(char *input)
 {
-	t_cmd	*cmd;
-	int	argc;
-	int	i;
-	char	*copy;
-	char	*token;
+	t_cmd *cmd;
+	int argc;
+	int i;
+	char *copy;
+	char *token;
 
 	if (input == NULL || strlen(input) == 0)
 		return (NULL);

@@ -1,9 +1,10 @@
 #include "minishell.h"
 
+
 void	prompt_loop(void)
 {
-	char	*input;
-	t_cmd	*cmd;
+	char *input;
+	t_cmd *cmd;
 
 	while (1)
 	{
