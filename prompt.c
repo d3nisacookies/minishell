@@ -14,12 +14,6 @@ void	prompt_loop(void)
 			write(1, "\n", 1);
 			break ;
 		}
-		if (g_signal == SIGINT)
-		{
-			g_signal = 0;
-			free(input);
-			continue ;
-		}
 		if (strlen(input) == 0)
 		{
 			free(input);

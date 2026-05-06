@@ -18,13 +18,18 @@ static void	signal_handler(int signum)
 
 static void	setup_signals(void)
 {
-	struct sigaction sa;
+	struct sigaction sa_int;
+	struct sigaction sa_quit;
 
-	sa.sa_handler = signal_handler;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
+	sa_int.sa_handler = signal_handler;
+	sigemptyset(&sa_int.sa_mask);
+	sa_int.sa_flags = 0;
+	sa_quit.sa_handler = SIG_IGN;
+	sigemptyset(&sa_quit.sa_mask);
+	sa_quit.sa_flags = 0;
+	rl_catch_signals = 0;
+	sigaction(SIGINT, &sa_int, NULL);
+	sigaction(SIGQUIT, &sa_quit, NULL);
 }
 
 int	main(void)

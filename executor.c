@@ -29,6 +29,8 @@ void	execute_command(t_cmd *cmd)
 	}
 	if (pid == 0)
 	{
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
 		execvp(cmd->args[0], cmd->args);
 		perror(cmd->args[0]);
 		exit(1);
