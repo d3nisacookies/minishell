@@ -8,15 +8,17 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include <unistd.h>
-# include <sys/wait.h>
 # include <sys/types.h>
-# include <signal.h>
-# include <readline/readline.h>
-# include <readline/history.h>
+# include <sys/wait.h>
+# include <unistd.h>
+
+extern volatile sig_atomic_t g_signal;
 
 /* Structures */
 typedef struct s_cmd

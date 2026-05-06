@@ -7,10 +7,11 @@
 
 #include "minishell.h"
 
+
 void	execute_command(t_cmd *cmd)
 {
-	pid_t	pid;
-	int	status;
+	pid_t pid;
+	int status;
 
 	if (strcmp(cmd->args[0], "exit") == 0)
 		exit(0);
@@ -38,7 +39,7 @@ void	execute_command(t_cmd *cmd)
 
 void	free_cmd(t_cmd *cmd)
 {
-	int	i;
+	int i;
 
 	if (cmd == NULL)
 		return ;
