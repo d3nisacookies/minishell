@@ -8,18 +8,22 @@
 #include "minishell.h"
 
 
-void	execute_command(t_cmd *cmd)
+void	execute_command(t_cmd *cmd, t_shell *shell)
 {
 	pid_t pid;
 	int status;
 
-	if (strcmp(cmd->args[0], "exit") == 0)
+	if (ft_strcmp(cmd->args[0], "exit") == 0)
 		exit(0);
-	if (strcmp(cmd->args[0], "cd") == 0)
+	if (ft_strcmp(cmd->args[0], "cd") == 0)
 	{
 		if (cmd->argc > 1)
 			chdir(cmd->args[1]);
 		return ;
+	}
+	if (ft_strcmp(cmd->args[0], "export") == 0)
+	{
+		builtin_export(shell, cmd);
 	}
 	pid = fork();
 	if (pid == -1)

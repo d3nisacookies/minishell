@@ -32,9 +32,15 @@ static void	setup_signals(void)
 	sigaction(SIGQUIT, &sa_quit, NULL);
 }
 
-int	main(void)
+int	main(int ac, char **av, char **envp)
 {
+	t_shell shell;
+
+	(void)ac;
+	(void)av;
+	shell.env = copy_env(envp);
+	shell.last_exit = 0;
 	setup_signals();
-	prompt_loop();
+	prompt_loop(&shell);
 	return (0);
 }

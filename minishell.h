@@ -8,6 +8,8 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include "libft.h"
+# include "printf/ft_printf.h"
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
@@ -20,17 +22,27 @@
 
 extern volatile sig_atomic_t g_signal;
 
-/* Structures */
 typedef struct s_cmd
 {
 	char **args;
 	int argc;
 } t_cmd;
 
-/* Function prototypes */
-void	prompt_loop(void);
-t_cmd	*parse_command(char *input);
-void	execute_command(t_cmd *cmd);
-void	free_cmd(t_cmd *cmd);
+typedef struct s_shell
+{
+	char **env;
+	int last_exit;
+} t_shell;
 
-#endif /* !MINISHELL_H */
+void	prompt_loop(t_shell *shell);
+t_cmd	*parse_command(char *input);
+void	execute_command(t_cmd *cmd, t_shell *shell);
+void	free_cmd(t_cmd *cmd);
+char	**copy_env(char **envp);
+char	*make_env_entry(char *key, char *value);
+void	append_env(char ***env, char *new_entry);
+int	find_env_index(char **env, char *key);
+void	export_var(t_shell *shell, char *arg);
+void	builtin_export(t_shell *shell, t_cmd *cmd);
+
+#endif

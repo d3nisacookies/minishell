@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 
-void	prompt_loop(void)
+void	prompt_loop(t_shell *shell)
 {
 	char *input;
 	t_cmd *cmd;
@@ -23,7 +23,7 @@ void	prompt_loop(void)
 		cmd = parse_command(input);
 		if (cmd != NULL)
 		{
-			execute_command(cmd);
+			execute_command(cmd, shell);
 			free_cmd(cmd);
 		}
 		free(input);
