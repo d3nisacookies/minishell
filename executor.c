@@ -8,6 +8,27 @@
 #include "minishell.h"
 
 
+static void	builtin_cd(t_cmd *cmd, t_shell *shell)
+{
+	char *path;
+	int idx;
+
+	if (cmd->argc == 1)
+	{
+		idx = find_env_index(shell->env, "HOME");
+		if (idx == -1)
+		{
+			ft_printf("cd: HOME not set\n");
+			return ;
+		}
+		path = ft_strchr(shell->env[idx], '=') + 1;
+	}
+	else
+		path = cmd->args[1];
+	if (chdir(path) == -1)
+		perror("cd");
+}
+
 void	execute_command(t_cmd *cmd, t_shell *shell)
 {
 	pid_t pid;
@@ -17,13 +38,13 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 		exit(0);
 	if (ft_strcmp(cmd->args[0], "cd") == 0)
 	{
-		if (cmd->argc > 1)
-			chdir(cmd->args[1]);
+		builtin_cd(cmd, shell);
 		return ;
 	}
 	if (ft_strcmp(cmd->args[0], "export") == 0)
 	{
 		builtin_export(shell, cmd);
+		return ;
 	}
 	pid = fork();
 	if (pid == -1)

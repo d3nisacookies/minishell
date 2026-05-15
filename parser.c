@@ -29,7 +29,7 @@ static int	count_args(char *input)
 	return (count);
 }
 
-t_cmd	*parse_command(char *input)
+t_cmd	*parse_single(char *input)
 {
 	t_cmd *cmd;
 	int argc;
@@ -62,4 +62,36 @@ t_cmd	*parse_command(char *input)
 	cmd->argc = argc;
 	free(copy);
 	return (cmd);
+}
+
+t_cmd	*parse_command(char *input)
+{
+	char **pipeline;
+	t_cmd *head;
+	t_cmd *current;
+	int i;
+
+	pipeline = (ft_split(input, '|'));
+	if (!pipeline)
+		return (NULL);
+	head = NULL;
+	current = NULL;
+	i = 0;
+	while (pipeline[i])
+	{
+		if (!head)
+		{
+			head = parse_single(pipeline[i]);
+			current = head;
+		}
+		else
+		{
+			current->next = parse_single(pipeline[i]);
+			current = current->next;
+		}
+		free(pipeline[i]);
+		i++;
+	}
+	free(pipeline);
+	return (head);
 }
