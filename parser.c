@@ -1,97 +1,89 @@
-/*
-** EPITECH PROJECT, 2026
-** minishell
-** File description:
-** command parser
-*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aungk <aungk@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/16 10:00:00 by aungk             #+#    #+#             */
+/*   Updated: 2026/05/16 10:00:00 by aungk            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "minishell.h"
 
-
-static int	count_args(char *input)
+static void	free_cmd_list(t_cmd *cmd)
 {
-	int count;
-	int in_space;
+	t_cmd	*next;
 
-	count = 0;
-	in_space = 1;
-	while (*input)
+	while (cmd)
 	{
-		if (*input == ' ' || *input == '\t')
-			in_space = 1;
-		else if (in_space)
-		{
-			count++;
-			in_space = 0;
-		}
-		input++;
+		next = cmd->next;
+		free_cmd(cmd);
+		cmd = next;
 	}
-	return (count);
 }
 
-t_cmd	*parse_single(char *input)
+static void	free_pipeline_rest(char **pipeline, int start)
 {
-	t_cmd *cmd;
-	int argc;
-	int i;
-	char *copy;
-	char *token;
+	int	i;
 
-	if (input == NULL || strlen(input) == 0)
-		return (NULL);
-	cmd = malloc(sizeof(t_cmd));
-	if (cmd == NULL)
-		return (NULL);
-	argc = count_args(input);
-	cmd->args = malloc(sizeof(char *) * (argc + 1));
-	if (cmd->args == NULL)
+	i = start;
+	while (pipeline[i])
 	{
-		free(cmd);
-		return (NULL);
-	}
-	copy = strdup(input);
-	token = strtok(copy, " \t");
-	i = 0;
-	while (token != NULL && i < argc)
-	{
-		cmd->args[i] = strdup(token);
-		token = strtok(NULL, " \t");
+		free(pipeline[i]);
 		i++;
 	}
-	cmd->args[i] = NULL;
-	cmd->argc = argc;
-	free(copy);
-	return (cmd);
+	free(pipeline);
 }
 
-t_cmd	*parse_command(char *input)
+static int	append_cmd(t_cmd **head, t_cmd **current, char *segment)
 {
-	char **pipeline;
-	t_cmd *head;
-	t_cmd *current;
-	int i;
+	t_cmd	*node;
 
-	pipeline = (ft_split(input, '|'));
-	if (!pipeline)
-		return (NULL);
-	head = NULL;
+	node = parse_single(segment);
+	if (!node)
+		return (-1);
+	if (!*head)
+		*head = node;
+	else
+		(*current)->next = node;
+	*current = node;
+	return (0);
+}
+
+static int	build_cmd_list(char **pipeline, t_cmd **head)
+{
+	t_cmd	*current;
+	int		i;
+
 	current = NULL;
 	i = 0;
 	while (pipeline[i])
 	{
-		if (!head)
+		if (append_cmd(head, &current, pipeline[i]) == -1)
 		{
-			head = parse_single(pipeline[i]);
-			current = head;
-		}
-		else
-		{
-			current->next = parse_single(pipeline[i]);
-			current = current->next;
+			free_pipeline_rest(pipeline, i);
+			free_cmd_list(*head);
+			return (-1);
 		}
 		free(pipeline[i]);
 		i++;
 	}
 	free(pipeline);
+	return (0);
+}
+
+t_cmd	*parse_command(char *input)
+{
+	char	**pipeline;
+	t_cmd	*head;
+
+	pipeline = split_pipes(input);
+	if (!pipeline)
+		return (NULL);
+	head = NULL;
+	if (build_cmd_list(pipeline, &head) == -1)
+		return (NULL);
 	return (head);
 }

@@ -39,6 +39,13 @@ int	main(int ac, char **av, char **envp)
 	(void)ac;
 	(void)av;
 	shell.env = copy_env(envp);
+	if (!shell.env)
+	{
+		shell.env = malloc(sizeof(char *));
+		if (!shell.env)
+			return (1);
+		shell.env[0] = NULL;
+	}
 	shell.last_exit = 0;
 	setup_signals();
 	prompt_loop(&shell);

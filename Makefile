@@ -5,6 +5,10 @@ LDFLAGS	=	-lreadline
 SRC		=	main.c \
             prompt.c \
             parser.c \
+			parser_utils.c \
+			parser_words.c \
+			parser_single.c \
+			parser_pipes.c \
             executor.c \
             env.c \
             builtins.c

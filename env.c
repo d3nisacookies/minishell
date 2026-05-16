@@ -1,10 +1,14 @@
 #include "libft/libft.h"
 #include "minishell.h"
 
+extern char	**environ;
+
 static int	count_env(char **envp)
 {
 	int	i;
 
+	if (!envp)
+		return (0);
 	i = 0;
 	while (envp[i])
 		i++;
@@ -38,6 +42,8 @@ int	find_env_index(char **env, char *key)
 	int	i;
 	int	key_len;
 
+	if (!env || !key)
+		return (-1);
 	key_len = ft_strlen(key);
 	i = 0;
 	while (env[i])
@@ -55,6 +61,8 @@ char	*make_env_entry(char *key, char *value)
 	char	*tmp;
 	char	*entry;
 
+	if (!key || !value)
+		return (NULL);
 	tmp = ft_strjoin(key, "=");
 	if (!tmp)
 		return (NULL);
@@ -69,6 +77,8 @@ void	append_env(char ***env, char *new_entry)
 	int		len;
 	int		i;
 
+	if (!env || !new_entry)
+		return ;
 	len = count_env(*env);
 	new_env = malloc(sizeof(char *) * (len + 2));
 	if (!new_env)
@@ -93,11 +103,16 @@ void	export_var(t_shell *shell, char *arg)
 	int		idx;
 	char	*new_entry;
 
+	if (!shell || !arg)
+		return ;
 	equals = ft_strchr(arg, '=');
 	if (!equals)
 	{
 		if (find_env_index(shell->env, arg) == -1)
+		{
 			append_env(&shell->env, ft_strdup(arg));
+			environ = shell->env;
+		}
 		return ;
 	}
 	key = ft_substr(arg, 0, equals - arg);
@@ -105,17 +120,22 @@ void	export_var(t_shell *shell, char *arg)
 		return ;
 	value = equals + 1;
 	new_entry = make_env_entry(key, value);
-	free(key);
 	if (!new_entry)
+	{
+		free(key);
 		return ;
+	}
 	idx = find_env_index(shell->env, key);
+	free(key);
 	if (idx != -1)
 	{
 		free(shell->env[idx]);
 		shell->env[idx] = new_entry;
+		environ = shell->env;
 	}
 	else
 	{
 		append_env(&shell->env, new_entry);
+		environ = shell->env;
 	}
 }
