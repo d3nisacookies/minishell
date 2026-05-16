@@ -16,6 +16,11 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
+	if (cmd->next)
+	{
+		execute_pipeline(cmd, shell);
+		return ;
+	}
 	if (ft_strcmp(cmd->args[0], "exit") == 0)
 		exit(0);
 	if (ft_strcmp(cmd->args[0], "echo") == 0)

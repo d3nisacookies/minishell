@@ -10,6 +10,7 @@ SRC		=	main.c \
 			parser_single.c \
 			parser_pipes.c \
             executor.c \
+			executor_pipe.c \
             env.c \
             builtins.c
 

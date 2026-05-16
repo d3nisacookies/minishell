@@ -48,6 +48,8 @@ void	parser_put_pipe_error(void);
 int		parser_count_args(char *s);
 char	*parser_extract_word(char *s, int *i);
 void	execute_command(t_cmd *cmd, t_shell *shell);
+void	execute_pipeline(t_cmd *cmd, t_shell *shell);
+int		have_next_pipe(t_cmd *cmd);
 void	free_cmd(t_cmd *cmd);
 char	**copy_env(char **envp);
 char	*make_env_entry(char *key, char *value);

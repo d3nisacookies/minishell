@@ -1,5 +1,16 @@
 #include "minishell.h"
 
+static void	free_cmd_list(t_cmd *cmd)
+{
+	t_cmd	*next;
+
+	while (cmd)
+	{
+		next = cmd->next;
+		free_cmd(cmd);
+		cmd = next;
+	}
+}
 
 void	prompt_loop(t_shell *shell)
 {
@@ -24,7 +35,7 @@ void	prompt_loop(t_shell *shell)
 		if (cmd != NULL)
 		{
 			execute_command(cmd, shell);
-			free_cmd(cmd);
+			free_cmd_list(cmd);
 		}
 		free(input);
 	}
