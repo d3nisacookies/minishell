@@ -5,6 +5,7 @@ static void	free_partial_cmd(t_cmd *cmd, int count)
 	while (count > 0)
 		free(cmd->args[--count]);
 	free(cmd->args);
+	free(cmd->quoted);
 	free(cmd);
 }
 
@@ -12,6 +13,7 @@ static int	fill_args(t_cmd *cmd, char *input)
 {
 	int	i;
 	int	count;
+	int	was_quoted;
 
 	i = 0;
 	count = 0;
@@ -20,9 +22,10 @@ static int	fill_args(t_cmd *cmd, char *input)
 		parser_skip_spaces(input, &i);
 		if (!input[i])
 			break ;
-		cmd->args[count] = parser_extract_word(input, &i);
+		cmd->args[count] = parser_extract_word(input, &i, &was_quoted);
 		if (!cmd->args[count])
 			return (-1);
+		cmd->quoted[count] = was_quoted;
 		count++;
 	}
 	cmd->args[count] = NULL;
@@ -41,6 +44,13 @@ static t_cmd	*alloc_cmd(int argc)
 	cmd->args = malloc(sizeof(char *) * (argc + 1));
 	if (!cmd->args)
 	{
+		free(cmd);
+		return (NULL);
+	}
+	cmd->quoted = malloc(sizeof(int) * (argc + 1));
+	if (!cmd->quoted)
+	{
+		free(cmd->args);
 		free(cmd);
 		return (NULL);
 	}

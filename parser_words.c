@@ -63,7 +63,7 @@ static int	get_word_len(char *s, int i)
 	return (len);
 }
 
-static int	fill_word(char *s, int *i, char *word)
+static int	fill_word(char *s, int *i, char *word, int *was_quoted)
 {
 	int		j;
 	char	c;
@@ -73,6 +73,7 @@ static int	fill_word(char *s, int *i, char *word)
 	{
 		if (s[*i] == '\'' || s[*i] == '"')
 		{
+			*was_quoted = 1;
 			c = s[(*i)++];
 			while (s[*i] && s[*i] != c)
 				word[j++] = s[(*i)++];
@@ -87,7 +88,7 @@ static int	fill_word(char *s, int *i, char *word)
 	return (0);
 }
 
-char	*parser_extract_word(char *s, int *i)
+char	*parser_extract_word(char *s, int *i, int *was_quoted)
 {
 	char	*word;
 	int		len;
@@ -98,7 +99,8 @@ char	*parser_extract_word(char *s, int *i)
 	word = malloc(sizeof(char) * (len + 1));
 	if (!word)
 		return (NULL);
-	if (fill_word(s, i, word) == -1)
+	*was_quoted = 0;
+	if (fill_word(s, i, word, was_quoted) == -1)
 	{
 		free(word);
 		return (NULL);

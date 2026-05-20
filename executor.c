@@ -32,25 +32,12 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	}
 	if (ft_strcmp(cmd->args[0], "cd") == 0)
 	{
-		if (cmd->argc == 1)
-		{
-			if (chdir(getenv("HOME")) == -1)
-			{
-				perror("cd");
-				shell->last_exit = 1;
-				return ;
-			}
-		}
-		else
-		{
-			if (chdir(cmd->args[1]) == -1)
-			{
-				perror("cd");
-				shell->last_exit = 1;
-				return ;
-			}
-		}
-		shell->last_exit = 0;
+		shell->last_exit = builtin_cd(shell, cmd);
+		return ;
+	}
+	if (ft_strcmp(cmd->args[0], "pwd") == 0)
+	{
+		shell->last_exit = builtin_pwd(shell);
 		return ;
 	}
 	if (ft_strcmp(cmd->args[0], "export") == 0)
@@ -98,5 +85,6 @@ void	free_cmd(t_cmd *cmd)
 		i++;
 	}
 	free(cmd->args);
+	free(cmd->quoted);
 	free(cmd);
 }

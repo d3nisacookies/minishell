@@ -26,6 +26,7 @@ extern volatile sig_atomic_t	g_signal;
 typedef struct s_cmd
 {
 	char			**args;
+	int				*quoted;
 	int				argc;
 	struct s_cmd	*next;
 }	t_cmd;
@@ -46,7 +47,7 @@ void	parser_free_split(char **split, int count);
 void	parser_put_unmatched_quote_error(void);
 void	parser_put_pipe_error(void);
 int		parser_count_args(char *s);
-char	*parser_extract_word(char *s, int *i);
+char	*parser_extract_word(char *s, int *i, int *was_quoted);
 void	execute_command(t_cmd *cmd, t_shell *shell);
 void	execute_pipeline(t_cmd *cmd, t_shell *shell);
 int		have_next_pipe(t_cmd *cmd);
@@ -58,6 +59,8 @@ int		find_env_index(char **env, char *key);
 void	export_var(t_shell *shell, char *arg);
 void	builtin_export(t_shell *shell, t_cmd *cmd);
 void	builtin_echo(t_shell *shell, t_cmd *cmd);
+int		builtin_cd(t_shell *shell, t_cmd *cmd);
+int		builtin_pwd(t_shell *shell);
 char	*ft_strtok(char *str, const char *delim);
 int		is_only_variable(char *str);
 
