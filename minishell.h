@@ -59,5 +59,6 @@ void	export_var(t_shell *shell, char *arg);
 void	builtin_export(t_shell *shell, t_cmd *cmd);
 void	builtin_echo(t_shell *shell, t_cmd *cmd);
 char	*ft_strtok(char *str, const char *delim);
+int		is_only_variable(char *str);
 
 #endif

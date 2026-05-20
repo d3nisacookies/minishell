@@ -32,6 +32,7 @@ static void	setup_signals(void)
 	sigaction(SIGQUIT, &sa_quit, NULL);
 }
 
+
 int	main(int ac, char **av, char **envp)
 {
 	t_shell shell;

@@ -49,6 +49,32 @@ static char	*get_env_value(t_shell *shell, char *key)
 	return (equals + 1);
 }
 
+static void print_word_split(char *str)
+{
+	int i;
+	int in_space;
+
+	if (!str)
+		return ;
+	i = 0;
+	in_space = 1;
+	while (str[i])
+	{
+		if (str[i] == ' ' || str[i] == '\t')
+		{
+			in_space = 1;
+			i++;
+		}else
+		{
+			if (in_space && i > 0)
+				ft_printf(" ");
+			ft_printf("%c", str[i]);
+			in_space = 0;
+			i++;
+		}
+	}
+}
+
 static void	print_echo_arg(t_shell *shell, char *arg)
 {
 	char	*value;
@@ -62,10 +88,19 @@ static void	print_echo_arg(t_shell *shell, char *arg)
 			ft_printf("%d", shell->last_exit);
 			return ;
 		}
+		if (is_only_variable(arg))
+		{
+			value = get_env_value(shell, arg + 1);
+			if (value)
+				print_word_split(value);
+			return ;
+		}
 		value = get_env_value(shell, arg + 1);
 		if (value)
+		{
 			ft_printf("%s", value);
-		return ;
+			return ;
+		}
 	}
 	ft_printf("%s", arg);
 }
@@ -85,4 +120,22 @@ void	builtin_echo(t_shell *shell, t_cmd *cmd)
 		i++;
 	}
 	ft_printf("\n");
+}
+
+int is_only_variable(char *str)
+{
+    int i;
+
+    if (!str || str[0] != '$' || str[1] == '\0')
+        return (0);
+    i = 1;
+    if (str[1] == '?' && str[2] == '\0')
+        return (1);
+    while (str[i])
+    {
+        if (!ft_isalnum(str[i]) && str[i] != '_')
+            return (0);
+        i++;
+    }
+    return (1);
 }
