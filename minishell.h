@@ -20,6 +20,7 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
+#include <fcntl.h>
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -28,6 +29,9 @@ typedef struct s_cmd
 	char			**args;
 	int				*quoted;
 	int				argc;
+	char		*infile;
+	char	*outfile;
+	int		append;
 	struct s_cmd	*next;
 }	t_cmd;
 
@@ -63,5 +67,10 @@ int		builtin_cd(t_shell *shell, t_cmd *cmd);
 int		builtin_pwd(t_shell *shell);
 char	*ft_strtok(char *str, const char *delim);
 int		is_only_variable(char *str);
+
+int	apply_redirections(t_cmd *cmd);
+int	reverse_crocodile(t_cmd *cmd);
+int	double_crocodile(t_cmd *cmd);
+int	crocodile(t_cmd *cmd);
 
 #endif

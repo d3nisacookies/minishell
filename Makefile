@@ -12,7 +12,8 @@ SRC		=	main.c \
             executor.c \
 			executor_pipe.c \
             env.c \
-            builtins.c
+            builtins.c \
+			redirections.c
 
 OBJ		=	$(SRC:.c=.o)
 

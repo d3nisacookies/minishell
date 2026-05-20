@@ -10,6 +10,38 @@
 
 extern char **environ;
 
+static void	restore_stdio(int saved_in, int saved_out)
+{
+	if (saved_in != -1)
+	{
+		dup2(saved_in, STDIN_FILENO);
+		close(saved_in);
+	}
+	if (saved_out != -1)
+	{
+		dup2(saved_out, STDOUT_FILENO);
+		close(saved_out);
+	}
+}
+
+static int	prepare_builtin_redirs(t_cmd *cmd, int *saved_in, int *saved_out)
+{
+	*saved_in = dup(STDIN_FILENO);
+	*saved_out = dup(STDOUT_FILENO);
+	if (*saved_in == -1 || *saved_out == -1)
+	{
+		perror("dup");
+		restore_stdio(*saved_in, *saved_out);
+		return (-1);
+	}
+	if (apply_redirections(cmd) == -1)
+	{
+		restore_stdio(*saved_in, *saved_out);
+		return (-1);
+	}
+	return (0);
+}
+
 void	execute_command(t_cmd *cmd, t_shell *shell)
 {
 	pid_t pid;
@@ -26,8 +58,17 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 		exit(0);
 	if (ft_strcmp(cmd->args[0], "echo") == 0)
 	{
-		builtin_echo(shell, cmd);
-		shell->last_exit = 0;
+		int	saved_in;
+		int	saved_out;
+
+		if (prepare_builtin_redirs(cmd, &saved_in, &saved_out) == -1)
+		{
+			shell->last_exit = 1;
+			return ;
+		}
+			builtin_echo(shell, cmd);
+			restore_stdio(saved_in, saved_out);
+			shell->last_exit = 0;
 		return ;
 	}
 	if (ft_strcmp(cmd->args[0], "cd") == 0)
@@ -86,5 +127,7 @@ void	free_cmd(t_cmd *cmd)
 	}
 	free(cmd->args);
 	free(cmd->quoted);
+	free(cmd->infile);
+	free(cmd->outfile);
 	free(cmd);
 }
