@@ -8,6 +8,7 @@ SRC		=	main.c \
 			parser_utils.c \
 			parser_words.c \
 			parser_single.c \
+			parser_redirections.c \
 			parser_pipes.c \
             executor.c \
 			executor_pipe.c \

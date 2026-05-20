@@ -52,6 +52,8 @@ void	parser_put_unmatched_quote_error(void);
 void	parser_put_pipe_error(void);
 int		parser_count_args(char *s);
 char	*parser_extract_word(char *s, int *i, int *was_quoted);
+int		parser_is_redirection(char *word);
+int		parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i);
 void	execute_command(t_cmd *cmd, t_shell *shell);
 void	execute_pipeline(t_cmd *cmd, t_shell *shell);
 int		have_next_pipe(t_cmd *cmd);
