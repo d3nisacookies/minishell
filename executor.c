@@ -7,7 +7,8 @@
 
 #include "minishell.h"
 
-extern char	**environ;
+
+extern char **environ;
 
 void	execute_command(t_cmd *cmd, t_shell *shell)
 {
@@ -31,7 +32,16 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	}
 	if (ft_strcmp(cmd->args[0], "cd") == 0)
 	{
-		if (cmd->argc > 1)
+		if (cmd->argc == 1)
+		{
+			if (chdir(getenv("HOME")) == -1)
+			{
+				perror("cd");
+				shell->last_exit = 1;
+				return ;
+			}
+		}
+		else
 		{
 			if (chdir(cmd->args[1]) == -1)
 			{
