@@ -79,6 +79,7 @@ t_cmd	*parse_command(char *input)
 	char	**pipeline;
 	t_cmd	*head;
 
+	parser_set_status(0);
 	pipeline = split_pipes(input);
 	if (!pipeline)
 		return (NULL);

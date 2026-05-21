@@ -111,13 +111,36 @@ static void	print_echo_arg(t_shell *shell, char *arg, int was_quoted)
 	ft_printf("%s", arg);
 }
 
+static int	is_echo_n_option(char *arg)
+{
+	int	j;
+
+	if (!arg || arg[0] != '-' || arg[1] == '\0')
+		return (0);
+	j = 1;
+	while (arg[j])
+	{
+		if (arg[j] != 'n')
+			return (0);
+		j++;
+	}
+	return (1);
+}
+
 void	builtin_echo(t_shell *shell, t_cmd *cmd)
 {
 	int	i;
+	int	n_flag;
 
 	if (!shell || !cmd || !cmd->args)
 		return ;
 	i = 1;
+	n_flag = 0;
+	while (i < cmd->argc && is_echo_n_option(cmd->args[i]))
+	{
+		n_flag = 1;
+		i++;
+	}
 	while (i < cmd->argc)
 	{
 		print_echo_arg(shell, cmd->args[i], cmd->quoted[i]);
@@ -125,7 +148,8 @@ void	builtin_echo(t_shell *shell, t_cmd *cmd)
 			ft_printf(" ");
 		i++;
 	}
-	ft_printf("\n");
+	if (!n_flag)
+		ft_printf("\n");
 }
 
 int is_only_variable(char *str)

@@ -28,6 +28,7 @@ int	parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i)
 	parser_skip_spaces(input, i);
 	if (!input[*i])
 	{
+		parser_set_status(2);
 		ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
 		return (-1);
 	}

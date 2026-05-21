@@ -50,6 +50,8 @@ void	parser_skip_spaces(char *s, int *i);
 void	parser_free_split(char **split, int count);
 void	parser_put_unmatched_quote_error(void);
 void	parser_put_pipe_error(void);
+void	parser_set_status(int status);
+int		parser_get_status(void);
 int		parser_count_args(char *s);
 char	*parser_extract_word(char *s, int *i, int *was_quoted);
 int		parser_is_redirection(char *word);
