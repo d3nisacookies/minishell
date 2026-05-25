@@ -20,6 +20,7 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include <errno.h>
 #include <fcntl.h>
 
 extern volatile sig_atomic_t	g_signal;
@@ -71,6 +72,8 @@ int		builtin_cd(t_shell *shell, t_cmd *cmd);
 int		builtin_pwd(t_shell *shell);
 char	*ft_strtok(char *str, const char *delim);
 int		is_only_variable(char *str);
+char	**split_semicolons(char *input);
+void	free_split_array(char **arr);
 
 int	apply_redirections(t_cmd *cmd);
 int	reverse_crocodile(t_cmd *cmd);

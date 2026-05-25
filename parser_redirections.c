@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2026
-** minishell
-** File description:
-** Redirection parsing functions
-*/
-
 #include "minishell.h"
 
 int	parser_is_redirection(char *word)

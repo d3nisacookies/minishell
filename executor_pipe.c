@@ -2,6 +2,24 @@
 
 extern char	**environ;
 
+static void	exit_exec_error(char *cmd_name)
+{
+    if (errno == ENOENT)
+    {
+        ft_putstr_fd(cmd_name, 2);
+        ft_putstr_fd(": command not found\n", 2);
+        exit(127);
+    }
+    if (errno == EACCES)
+    {
+        ft_putstr_fd(cmd_name, 2);
+        ft_putstr_fd(": Permission denied\n", 2);
+        exit(126);
+    }
+    perror(cmd_name);
+    exit(1);
+}
+
 static int	count_cmds(t_cmd *cmd)
 {
     int	count;
@@ -103,10 +121,11 @@ void execute_pipeline(t_cmd *cmd, t_shell *shell)
                 close(pipefd[0]);
                 close(pipefd[1]);
             }
+            if (apply_redirections(current_cmd) == -1)
+                exit(1);
             environ = shell->env;
             execvp(current_cmd->args[0], current_cmd->args);
-            perror(current_cmd->args[0]);
-            exit(1);
+            exit_exec_error(current_cmd->args[0]);
         }
         pids[idx++] = pid;
         last_pid = pid;

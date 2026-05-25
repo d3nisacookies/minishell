@@ -10,6 +10,24 @@
 
 extern char **environ;
 
+static void	exit_exec_error(char *cmd_name)
+{
+	if (errno == ENOENT)
+	{
+		ft_putstr_fd(cmd_name, 2);
+		ft_putstr_fd(": command not found\n", 2);
+		exit(127);
+	}
+	if (errno == EACCES)
+	{
+		ft_putstr_fd(cmd_name, 2);
+		ft_putstr_fd(": Permission denied\n", 2);
+		exit(126);
+	}
+	perror(cmd_name);
+	exit(1);
+}
+
 static void	restore_stdio(int saved_in, int saved_out)
 {
 	if (saved_in != -1)
@@ -99,9 +117,10 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	{
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
+		if (apply_redirections(cmd) == -1)
+			exit(1);
 		execvp(cmd->args[0], cmd->args);
-		perror(cmd->args[0]);
-		exit(1);
+		exit_exec_error(cmd->args[0]);
 	}
 	else
 	{
