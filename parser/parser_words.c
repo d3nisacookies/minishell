@@ -1,5 +1,10 @@
 #include "minishell.h"
 
+static int	is_redir_char(char c)
+{
+	return (c == '>' || c == '<');
+}
+
 static int	skip_quoted(char *s, int i)
 {
 	char	quote;
@@ -24,8 +29,17 @@ int	parser_count_args(char *s)
 		parser_skip_spaces(s, &i);
 		if (!s[i])
 			break ;
+		if (is_redir_char(s[i]))
+		{
+			count++;
+			if (s[i + 1] == s[i])
+				i += 2;
+			else
+				i++;
+			continue ;
+		}
 		count++;
-		while (s[i] && !parser_is_space(s[i]))
+		while (s[i] && !parser_is_space(s[i]) && !is_redir_char(s[i]))
 		{
 			if (s[i] == '\'' || s[i] == '"')
 				i = skip_quoted(s, i);
@@ -43,8 +57,14 @@ static int	get_word_len(char *s, int i)
 	int	len;
 	int	next;
 
+	if (is_redir_char(s[i]))
+	{
+		if (s[i + 1] == s[i])
+			return (2);
+		return (1);
+	}
 	len = 0;
-	while (s[i] && !parser_is_space(s[i]))
+	while (s[i] && !parser_is_space(s[i]) && !is_redir_char(s[i]))
 	{
 		if (s[i] == '\'' || s[i] == '"')
 		{
@@ -69,7 +89,16 @@ static int	fill_word(char *s, int *i, char *word, int *was_quoted)
 	char	c;
 
 	j = 0;
-	while (s[*i] && !parser_is_space(s[*i]))
+	if (is_redir_char(s[*i]))
+	{
+		word[j++] = s[*i];
+		(*i)++;
+		if (s[*i] == word[0])
+			word[j++] = s[(*i)++];
+		word[j] = '\0';
+		return (0);
+	}
+	while (s[*i] && !parser_is_space(s[*i]) && !is_redir_char(s[*i]))
 	{
 		if (s[*i] == '\'' || s[*i] == '"')
 		{

@@ -139,3 +139,44 @@ void	export_var(t_shell *shell, char *arg)
 		environ = shell->env;
 	}
 }
+
+static int	env_len(char **env)
+{
+	int	len;
+
+	len = 0;
+	while (env[len])
+		len++;
+	return (len);
+}
+
+void	remove_env_index(t_shell *shell, int index)
+{
+	char	**new_env;
+	int	len;
+	int	old_i;
+	int	new_i;
+
+	if (!shell || !shell->env || index < 0)
+		return ;
+	len = env_len(shell->env);
+	if (index >= len)
+		return ;
+	new_env = malloc(sizeof(char *) * len);
+	if (!new_env)
+		return ;
+	old_i = 0;
+	new_i = 0;
+	while (old_i < len)
+	{
+		if (old_i == index)
+			free(shell->env[old_i]);
+		else
+			new_env[new_i++] = shell->env[old_i];
+		old_i++;
+	}
+	new_env[new_i] = NULL;
+	free(shell->env);
+	shell->env = new_env;
+	environ = shell->env;
+}

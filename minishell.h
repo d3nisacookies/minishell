@@ -70,6 +70,8 @@ void	builtin_export(t_shell *shell, t_cmd *cmd);
 void	builtin_echo(t_shell *shell, t_cmd *cmd);
 int		builtin_cd(t_shell *shell, t_cmd *cmd);
 int		builtin_pwd(t_shell *shell);
+void	builtin_unset(t_shell *shell, t_cmd *cmd);
+void	remove_env_index(t_shell *shell, int index);
 char	*ft_strtok(char *str, const char *delim);
 int		is_only_variable(char *str);
 char	**split_semicolons(char *input);

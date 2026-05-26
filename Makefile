@@ -3,18 +3,21 @@ CFLAGS	=	-Wall -Wextra -Werror -I. -Iprintf -Iprintf/libft
 LDFLAGS	=	-lreadline
 
 SRC		=	main.c \
-            prompt.c \
-            parser.c \
-			parser_utils.c \
-			parser_words.c \
-			parser_single.c \
-			parser_redirections.c \
-			parser_pipes.c \
-            executor.c \
-			executor_pipe.c \
-            env.c \
-            builtins.c \
-			redirections.c
+			prompt.c \
+			builtins/cd_pwd.c \
+			builtins/echo.c \
+			builtins/export.c \
+			builtins/unset.c \
+			env/env.c \
+			executor/executor.c \
+			executor/executor_pipe.c \
+			parser/parser.c \
+			parser/parser_pipes.c \
+			parser/parser_redirections.c \
+			parser/parser_single.c \
+			parser/parser_utils.c \
+			parser/parser_words.c \
+			redirections/redirections.c
 
 OBJ		=	$(SRC:.c=.o)
 
@@ -34,6 +37,7 @@ $(NAME):	$(FT_PRINTF) $(OBJ)
 
 clean:
 	rm -f $(OBJ)
+	find . -type f -name "*.o" -not -path "./printf/*" -delete
 	$(MAKE) -C printf clean
 
 fclean:	clean
