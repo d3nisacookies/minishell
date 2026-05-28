@@ -72,6 +72,8 @@ static t_cmd	*alloc_cmd(int argc)
 	cmd->outfile = NULL;
 	cmd->append = 0;
 	cmd->next = NULL;
+	cmd->heredoc = 0;
+	cmd->heredoc_delim = NULL;
 	return (cmd);
 }
 

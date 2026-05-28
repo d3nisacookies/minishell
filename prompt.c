@@ -116,7 +116,10 @@ static int	execute_input_segments(char *input, t_shell *shell)
 	if (!segments)
 		return (shell->last_exit = parser_get_status() ? parser_get_status() : 1, -1);
 	if (validate_segments(segments, shell) == -1)
+	{
+		shell->last_exit = 1;
 		return (free_split_array(segments), -1);
+	}
 	idx = 0;
 	while (segments[idx])
 	{

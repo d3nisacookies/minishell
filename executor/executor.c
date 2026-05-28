@@ -266,5 +266,6 @@ void	free_cmd(t_cmd *cmd)
 	free(cmd->quoted);
 	free(cmd->infile);
 	free(cmd->outfile);
+	free(cmd->heredoc_delim);
 	free(cmd);
 }

@@ -31,9 +31,11 @@ typedef struct s_cmd
 	char			**args;
 	int				*quoted;
 	int				argc;
-	char		*infile;
-	char	*outfile;
-	int		append;
+	char			*infile;
+	char			*outfile;
+	int				append;
+	int				heredoc;
+	char			*heredoc_delim;
 	struct s_cmd	*next;
 }	t_cmd;
 
