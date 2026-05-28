@@ -53,9 +53,143 @@ Minishell currently supports:
 
 ## How the Shell Works: Command Walkthrough
 1. Reading user input
-    We take user input by using readline after this we will tockize it (lexer).
-2. Splitting command sequences
+    ### 1. Reading User Input
+
+The first step is to read the command entered by the user. We use `readline()` to display the shell prompt and collect the full line of input as a string.
+
+For example, if the user enters:
+
+```bash
+echo "hello world" > file.txt
+```
+
+`readline()` initially gives Minishell one complete string:
+
+```c
+"echo \"hello world\" > file.txt"
+```
+
+This string is then passed to the **lexer**, which tokenises the input. Tokenising means breaking the command into meaningful pieces, while recognising special operators and respecting quotes.
+
+The example above would be separated into tokens such as:
+
+```text
+echo
+"hello world"
+>
+file.txt
+```
+
+The lexer must understand that `"hello world"` is one argument, even though it contains a space, and that `>` is a redirection operator rather than a normal argument.
+
+### 2. Splitting Command Sequences
+
+After reading the user's input, Minishell passes the raw input string to `execute_input_segments()`. This function handles command sequences separated by semicolons.
+
+For example:
+
+```bash
+echo hello ; pwd ; ls
+```
+
+is split into an array of separate command segments:
+
+```text
+segments[0] = "echo hello"
+segments[1] = "pwd"
+segments[2] = "ls"
+segments[3] = NULL
+```
+
+If the input does not contain a semicolon, the function still returns an array, but it contains only one segment. For example:
+
+```bash
+echo hello
+```
+
+becomes:
+
+```text
+segments[0] = "echo hello"
+segments[1] = NULL
+```
+
+Once the segments have been created, `validate_segments()` checks that the sequence is valid and does not contain syntax errors, such as an empty command between semicolons. Each valid segment is then passed individually to `parse_command()`, which fills the `t_cmd` structures needed for execution.
+
+Finally, `execute_command()` runs each parsed command in order before moving on to the next segment.
+
 3. Parsing pipes
+### 3. Parsing Pipes
+
+After command sequences have been separated, each individual segment is passed to `parse_command()`.
+
+For example, after splitting the input:
+
+```bash
+echo start ; cat file.txt | grep hello > result.txt
+```
+
+the second segment is passed into the parser as:
+
+```bash
+cat file.txt | grep hello > result.txt
+```
+
+Inside `parse_command()`, the function `split_pipes()` checks whether the segment contains pipe operators (`|`). A pipe connects the output of one command to the input of the next command.
+
+In this example:
+
+```bash
+cat file.txt | grep hello > result.txt
+```
+
+`split_pipes()` separates the segment into two command strings:
+
+```text
+pipeline[0] = "cat file.txt"
+pipeline[1] = "grep hello > result.txt"
+pipeline[2] = NULL
+```
+
+The parser must only split on valid pipe operators. A pipe character inside quotes is part of an argument and should not create a pipeline. For example:
+
+```bash
+echo "hello | world"
+```
+
+should remain a single command, because the `|` is inside quotes.
+
+Once the pipeline has been split, each command string is individually parsed using `parse_single()`. This creates one `t_cmd` structure for each command in the pipeline.
+
+For the example above, the result is conceptually:
+
+```text
+t_cmd 1:
+    args = ["cat", "file.txt", NULL]
+    next ──────────────────────┐
+                               ↓
+t_cmd 2:
+    args = ["grep", "hello", NULL]
+    outfile = "result.txt"
+    next = NULL
+```
+
+The pipe operator itself does not need to remain as an argument inside the command structures. Instead, the pipeline is represented by linking the command structures together using the `next` pointer.
+
+Therefore:
+
+```bash
+cat file.txt | grep hello > result.txt
+```
+
+becomes a linked list where the `cat` command points to the `grep` command:
+
+```text
+cat file.txt  →  grep hello > result.txt
+```
+
+At this point, the commands have only been parsed and connected structurally. The actual pipe file descriptors are created later during execution, when `execute_command()` detects that `cmd->next` exists and calls the pipeline execution logic.
+
 4. Parsing words, quotes and redirections
 5. Deciding between builtin and external command
 6. Executing commands
