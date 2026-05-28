@@ -100,16 +100,16 @@ static int	fill_word(char *s, int *i, char *word, int *was_quoted)
 	}
 	while (s[*i] && !parser_is_space(s[*i]) && !is_redir_char(s[*i]))
 	{
-		if (s[*i] == '\'' || s[*i] == '"')
-		{
-			*was_quoted = 1;
-			c = s[(*i)++];
-			while (s[*i] && s[*i] != c)
-				word[j++] = s[(*i)++];
-			if (!s[*i])
-				return (-1);
-			(*i)++;
-		}
+if (s[*i] == '\'' || s[*i] == '"')
+{
+	c = s[(*i)++];
+	*was_quoted = c;
+	while (s[*i] && s[*i] != c)
+		word[j++] = s[(*i)++];
+	if (!s[*i])
+		return (-1);
+	(*i)++;
+}
 		else
 			word[j++] = s[(*i)++];
 	}

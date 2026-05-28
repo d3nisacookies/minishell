@@ -65,6 +65,8 @@ int	builtin_cd(t_shell *shell, t_cmd *cmd)
 		return (1);
 	}
 	target = cmd->args[1];
+	if (target && target[0] == '$' && target[1] != '\0')
+		target = get_env_value(shell, target + 1);
 	if (!target)
 	{
 		target = get_env_value(shell, "HOME");

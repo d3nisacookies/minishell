@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "minishell.h"
 #include <signal.h>
 
@@ -50,5 +52,5 @@ int	main(int ac, char **av, char **envp)
 	shell.last_exit = 0;
 	setup_signals();
 	prompt_loop(&shell);
-	return (0);
+		return (shell.last_exit);
 }

@@ -1,5 +1,30 @@
 #include "minishell.h"
 
+static int	is_valid_identifier(char *arg)
+{
+	int	i;
+
+	if (!arg || arg[0] == '\0')
+		return (0);
+	if (!(ft_isalpha(arg[0]) || arg[0] == '_'))
+		return (0);
+	i = 1;
+	while (arg[i] && arg[i] != '=')
+	{
+		if (!(ft_isalnum(arg[i]) || arg[i] == '_'))
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static void	print_export_error(char *arg)
+{
+	ft_putstr_fd("minishell: export: `", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putstr_fd("': not a valid identifier\n", 2);
+}
+
 static void	print_export(char **env)
 {
 	int	i;
@@ -28,7 +53,13 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 	i = 1;
 	while (i < cmd->argc)
 	{
-		export_var(shell, cmd->args[i]);
+		if (!is_valid_identifier(cmd->args[i]))
+		{
+			print_export_error(cmd->args[i]);
+			shell->last_exit = 1;
+		}
+		else
+			export_var(shell, cmd->args[i]);
 		i++;
 	}
 }
