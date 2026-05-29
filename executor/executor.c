@@ -6,8 +6,154 @@
 */
 
 #include "minishell.h"
+#include <sys/stat.h>
 
 extern char **environ;
+
+static char	*get_env_value(t_shell *shell, char *key)
+{
+	int		idx;
+	char	*equals;
+
+	if (!shell || !shell->env || !key || key[0] == '\0')
+		return (NULL);
+	idx = find_env_index(shell->env, key);
+	if (idx == -1)
+		return (NULL);
+	equals = ft_strchr(shell->env[idx], '=');
+	if (!equals)
+		return ("");
+	return (equals + 1);
+}
+
+static char	*append_text(char *dst, char *src)
+{
+	char	*tmp;
+
+	if (!src)
+		return (dst);
+	if (!dst)
+		return (ft_strdup(src));
+	tmp = ft_strjoin(dst, src);
+	free(dst);
+	return (tmp);
+}
+
+static char	*append_char(char *dst, char c)
+{
+	char	buffer[2];
+
+	buffer[0] = c;
+	buffer[1] = '\0';
+	return (append_text(dst, buffer));
+}
+
+static int	is_var_start(char c)
+{
+	return (ft_isalpha(c) || c == '_');
+}
+
+static int	is_var_char(char c)
+{
+	return (ft_isalnum(c) || c == '_');
+}
+
+static char	*expand_argument(t_shell *shell, char *arg, int quote)
+{
+	char	*expanded;
+	char	*key;
+	char	*value;
+	int		start;
+	int		i;
+
+	if (quote == '\'' || !arg)
+		return (ft_strdup(arg));
+	expanded = ft_strdup("");
+	if (!expanded)
+		return (NULL);
+	i = 0;
+	while (arg[i])
+	{
+		if (arg[i] != '$')
+			expanded = append_char(expanded, arg[i++]);
+		else if (arg[i + 1] == '?')
+		{
+			value = ft_itoa(shell->last_exit);
+			expanded = append_text(expanded, value);
+			free(value);
+			i += 2;
+		}
+		else if (!is_var_start(arg[i + 1]))
+			expanded = append_char(expanded, arg[i++]);
+		else
+		{
+			start = ++i;
+			while (arg[i] && is_var_char(arg[i]))
+				i++;
+			key = ft_substr(arg, start, i - start);
+			if (!key)
+				return (free(expanded), NULL);
+			value = get_env_value(shell, key);
+			expanded = append_text(expanded, value);
+			free(key);
+		}
+		if (!expanded)
+			return (NULL);
+	}
+	return (expanded);
+}
+
+static int	expand_cmd_args(t_cmd *cmd, t_shell *shell)
+{
+	char	**new_args;
+	int		*new_quoted;
+	char	*expanded;
+	int		i;
+	int		count;
+
+	new_args = malloc(sizeof(char *) * (cmd->argc + 1));
+	new_quoted = malloc(sizeof(int) * (cmd->argc + 1));
+	if (!new_args || !new_quoted)
+		return (free(new_args), free(new_quoted), -1);
+	i = 0;
+	count = 0;
+	while (i < cmd->argc)
+	{
+		expanded = expand_argument(shell, cmd->args[i], cmd->quoted[i]);
+		if (!expanded)
+			return (free(new_args), free(new_quoted), -1);
+		free(cmd->args[i]);
+		if (expanded[0] != '\0' || cmd->quoted[i])
+		{
+			new_args[count] = expanded;
+			new_quoted[count++] = cmd->quoted[i];
+		}
+		else
+			free(expanded);
+		i++;
+	}
+	new_args[count] = NULL;
+	free(cmd->args);
+	free(cmd->quoted);
+	cmd->args = new_args;
+	cmd->quoted = new_quoted;
+	cmd->argc = count;
+	return (0);
+}
+
+static void	exit_if_directory(char *cmd_name)
+{
+	struct stat	st;
+
+	if (!cmd_name)
+		return ;
+	if (stat(cmd_name, &st) == 0 && S_ISDIR(st.st_mode))
+	{
+		ft_putstr_fd(cmd_name, 2);
+		ft_putstr_fd(": Is a directory\n", 2);
+		exit(126);
+	}
+}
 
 
 
@@ -84,6 +230,7 @@ static void	builtin_exit(t_shell *shell, t_cmd *cmd)
 
 static void	exit_exec_error(char *cmd_name)
 {
+	exit_if_directory(cmd_name);
 	if (errno == ENOENT)
 	{
 		ft_putstr_fd(cmd_name, 2);
@@ -137,8 +284,18 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	pid_t	pid;
 	int		status;
 
-	if (!cmd || !cmd->args || !cmd->args[0])
+	if (!cmd || !cmd->args)
 		return ;
+	if (expand_cmd_args(cmd, shell) == -1)
+	{
+		shell->last_exit = 1;
+		return ;
+	}
+	if (!cmd->args[0])
+	{
+		shell->last_exit = 0;
+		return ;
+}
 	if (cmd->next)
 	{
 		execute_pipeline(cmd, shell);
