@@ -1,164 +1,136 @@
 #include "minishell.h"
 
-static char	*trim_spaces(char *s)
+static intsyntax_error_token(t_shell *shell, char *token)
 {
-	int	start;
-	int	end;
-
-	if (!s)
-		return (NULL);
-	start = 0;
-	while (s[start] && parser_is_space(s[start]))
-		start++;
-	end = ft_strlen(s);
-	while (end > start && parser_is_space(s[end - 1]))
-		end--;
-	s[end] = '\0';
-	return (s + start);
+parser_set_status(2);
+ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+ft_putstr_fd(token, 2);
+ft_putstr_fd("'\n", 2);
+shell->last_exit = 2;
+return (-1);
 }
 
-static void	free_cmd_list(t_cmd *cmd)
+static intcheck_segment(char **segs, int idx, t_shell *shell)
 {
-	t_cmd	*next;
+char*segment;
+char*prev;
 
-	while (cmd)
-	{
-		next = cmd->next;
-		free_cmd(cmd);
-		cmd = next;
-	}
+segment = trim_spaces(segs[idx]);
+if (segment[0] != '\0')
+{
+if (starts_with_pipe(segment))
+return (syntax_error_token(shell, "|"));
+if (segs[idx + 1] != NULL && ends_with_pipe(segment))
+return (syntax_error_token(shell, ";"));
+return (0);
+}
+if (idx > 0)
+{
+prev = trim_spaces(segs[idx - 1]);
+if (ends_with_pipe(prev))
+return (syntax_error_token(shell, ";"));
+}
+if (!is_trailing_empty_segment(segs, idx))
+{
+if (idx > 0 && segs[idx + 1] != NULL)
+return (syntax_error_token(shell, ";;"));
+return (syntax_error_token(shell, ";"));
+}
+return (1);
 }
 
-static int	is_trailing_empty_segment(char **segments, int index)
+static intvalidate_segments(char **segments, t_shell *shell)
 {
-	if (index == 0)
-		return (0);
-	if (segments[index + 1] != NULL)
-		return (0);
-	return (1);
+intidx;
+intret;
+
+idx = 0;
+while (segments[idx])
+{
+ret = check_segment(segments, idx, shell);
+if (ret == -1)
+return (-1);
+if (ret == 1)
+break ;
+idx++;
+}
+return (0);
 }
 
-static int	ends_with_pipe(char *segment)
+static intrun_segments(char **segments, t_shell *shell)
 {
-	int	end;
+char*segment;
+t_cmd*cmd;
+intidx;
+intstatus;
 
-	end = ft_strlen(segment);
-	while (end > 0 && parser_is_space(segment[end - 1]))
-		end--;
-	if (end == 0)
-		return (0);
-	return (segment[end - 1] == '|');
+idx = 0;
+while (segments[idx])
+{
+segment = trim_spaces(segments[idx]);
+if (segment[0] == '\0')
+break ;
+cmd = parse_command(segment);
+if (cmd == NULL)
+{
+status = parser_get_status();
+if (!status)
+status = 1;
+shell->last_exit = status;
+free_split_array(segments);
+return (-1);
+}
+execute_command(cmd, shell);
+free_cmd_list(cmd);
+idx++;
+}
+return (0);
 }
 
-static int	starts_with_pipe(char *segment)
+static intexecute_input_segments(char *input, t_shell *shell)
 {
-	int	start;
+char**segments;
+intstatus;
 
-	start = 0;
-	while (segment[start] && parser_is_space(segment[start]))
-		start++;
-	return (segment[start] == '|');
+segments = split_semicolons(input);
+if (!segments)
+{
+status = parser_get_status();
+if (!status)
+status = 1;
+shell->last_exit = status;
+return (-1);
+}
+if (validate_segments(segments, shell) == -1)
+{
+shell->last_exit = 1;
+free_split_array(segments);
+return (-1);
+}
+run_segments(segments, shell);
+free_split_array(segments);
+return (0);
 }
 
-static int	syntax_error_token(t_shell *shell, char *token)
+voidprompt_loop(t_shell *shell)
 {
-	parser_set_status(2);
-	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
-	ft_putstr_fd(token, 2);
-	ft_putstr_fd("'\n", 2);
-	shell->last_exit = 2;
-	return (-1);
+char*input;
+
+while (1)
+{
+input = readline("$> ");
+if (input == NULL)
+{
+write(1, "\n", 1);
+break ;
 }
-
-static int	validate_segments(char **segments, t_shell *shell)
+if (strlen(input) == 0)
 {
-	int		idx;
-	char	*segment;
-	char	*prev;
-
-	idx = 0;
-	while (segments[idx])
-	{
-		segment = trim_spaces(segments[idx]);
-		if (segment[0] == '\0')
-		{
-			if (idx > 0)
-			{
-				prev = trim_spaces(segments[idx - 1]);
-				if (ends_with_pipe(prev))
-					return (syntax_error_token(shell, ";"));
-			}
-			if (!is_trailing_empty_segment(segments, idx))
-			{
-				if (idx > 0 && segments[idx + 1] != NULL)
-					return (syntax_error_token(shell, ";;"));
-				return (syntax_error_token(shell, ";"));
-			}
-			break ;
-		}
-		if (starts_with_pipe(segment))
-			return (syntax_error_token(shell, "|"));
-		if (segments[idx + 1] != NULL && ends_with_pipe(segment))
-			return (syntax_error_token(shell, ";"));
-		idx++;
-	}
-	return (0);
+free(input);
+continue ;
 }
-
-static int	execute_input_segments(char *input, t_shell *shell)
-{
-	char	**segments;
-	char	*segment;
-	t_cmd	*cmd;
-	int		idx;
-
-	segments = split_semicolons(input);
-	if (!segments)
-		return (shell->last_exit = parser_get_status() ? parser_get_status() : 1, -1);
-	if (validate_segments(segments, shell) == -1)
-	{
-		shell->last_exit = 1;
-		return (free_split_array(segments), -1);
-	}
-	idx = 0;
-	while (segments[idx])
-	{
-		segment = trim_spaces(segments[idx]);
-		if (segment[0] == '\0')
-			break ;
-		cmd = parse_command(segment);
-		if (cmd == NULL)
-		{
-			shell->last_exit = parser_get_status() ? parser_get_status() : 1;
-			return (free_split_array(segments), -1);
-		}
-		execute_command(cmd, shell);
-		free_cmd_list(cmd);
-		idx++;
-	}
-	free_split_array(segments);
-	return (0);
+add_history(input);
+execute_input_segments(input, shell);
+free(input);
 }
-
-void	prompt_loop(t_shell *shell)
-{
-	char	*input;
-
-	while (1)
-	{
-		input = readline("$> ");
-		if (input == NULL)
-		{
-			write(1, "\n", 1);
-			break ;
-		}
-		if (strlen(input) == 0)
-		{
-			free(input);
-			continue ;
-		}
-		add_history(input);
-		execute_input_segments(input, shell);
-		free(input);
-	}
 }
