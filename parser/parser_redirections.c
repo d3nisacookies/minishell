@@ -32,14 +32,18 @@ int	parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i)
 		return (-1);
 	if (ft_strcmp(op, "<") == 0)
 	{
+		cmd->heredoc = 0;
+		free(cmd->heredoc_delim);
+		cmd->heredoc_delim = NULL;
 		free(cmd->infile);
 		cmd->infile = file;
-	}else if(ft_strcmp(op, "<<") == 0)
+	}
+	else if (ft_strcmp(op, "<<") == 0)
 	{
+		cmd->heredoc = 1;
 		if (cmd->heredoc_delim)
 			free(cmd->heredoc_delim);
 		cmd->heredoc_delim = file;
-		cmd->heredoc = 1;
 		free(cmd->infile);
 		cmd->infile = NULL;
 	}

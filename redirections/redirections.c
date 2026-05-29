@@ -102,7 +102,12 @@ int	reverse_crocodile(t_cmd *cmd)
 
 int	apply_redirections(t_cmd *cmd)
 {
-	if (cmd->infile)
+	if (cmd->heredoc && cmd->heredoc_delim)
+	{
+		if (apply_heredoc(cmd) == -1)
+			return (-1);
+	}
+	else if (cmd->infile)
 	{
 		if (reverse_crocodile(cmd) == -1)
 			return (-1);
