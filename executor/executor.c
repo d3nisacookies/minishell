@@ -147,6 +147,8 @@ static void	exit_if_directory(char *cmd_name)
 
 	if (!cmd_name)
 		return ;
+	if (!ft_strchr(cmd_name, '/'))
+		return ;
 	if (stat(cmd_name, &st) == 0 && S_ISDIR(st.st_mode))
 	{
 		ft_putstr_fd(cmd_name, 2);
