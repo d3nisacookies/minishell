@@ -81,6 +81,8 @@ int		parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i);
 void	execute_command(t_cmd *cmd, t_shell *shell);
 void	execute_pipeline(t_cmd *cmd, t_shell *shell);
 int		have_next_pipe(t_cmd *cmd);
+int		executor_expand_args(t_cmd *cmd, t_shell *shell);
+void	executor_exit_exec_error(char *cmd_name);
 void	free_cmd(t_cmd *cmd);
 char	**copy_env(char **envp);
 char	*make_env_entry(char *key, char *value);
@@ -99,8 +101,8 @@ char	**split_semicolons(char *input);
 void	free_split_array(char **arr);
 
 int	apply_redirections(t_cmd *cmd);
-int	reverse_crocodile(t_cmd *cmd);
-int	double_crocodile(t_cmd *cmd);
-int	crocodile(t_cmd *cmd);
+int	redirect_input_file(char *path);
+int	redirect_output_append(char *path);
+int	redirect_output_truncate(char *path);
 
 #endif

@@ -9,6 +9,8 @@ SRC		=	main.c \
 			builtins/export.c \
 			builtins/unset.c \
 			env/env.c \
+			executor/executor_expand.c \
+			executor/executor_exec_error.c \
 			executor/executor.c \
 			executor/executor_pipe.c \
 			parser/parser.c \

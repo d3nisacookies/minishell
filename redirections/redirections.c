@@ -33,7 +33,7 @@ static int	apply_heredoc(char *delimiter)
 	return (0);
 }
 
-static int	apply_input_file(char *path)
+int	redirect_input_file(char *path)
 {
 	int	fd;
 
@@ -53,17 +53,11 @@ static int	apply_input_file(char *path)
 	return (0);
 }
 
-static int	apply_output_file(char *path, int append)
+int	redirect_output_truncate(char *path)
 {
 	int	fd;
-	int	flags;
 
-	flags = O_WRONLY | O_CREAT;
-	if (append)
-		flags |= O_APPEND;
-	else
-		flags |= O_TRUNC;
-	fd = open(path, flags, 0644);
+	fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 	{
 		perror(path);
@@ -79,15 +73,14 @@ static int	apply_output_file(char *path, int append)
 	return (0);
 }
 
-// take the output of a command and send it to the file instead of terminal
-int	crocodile(t_cmd *cmd)
+int	redirect_output_append(char *path)
 {
 	int	fd;
 
-	fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd == -1)
 	{
-		perror(cmd->outfile);
+		perror(path);
 		return (-1);
 	}
 	if (dup2(fd, STDOUT_FILENO) == -1)
@@ -100,55 +93,18 @@ int	crocodile(t_cmd *cmd)
 	return (0);
 }
 
-// take the output of a command and send it to the file and append instead of terminal
-int	double_crocodile(t_cmd *cmd)
+static int	apply_single_redirection(t_redir *redir)
 {
-	int	fd;
-        
-
-	fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd == -1)
-	{
-		perror("open");
-		return (-1);
-	}
-	if (dup2(fd, STDOUT_FILENO) == -1)
-	{
-		perror("dup2");
-		close(fd);
-		return (-1);
-	}
-	close(fd);
-	// execve(cmd->path, cmd->args, env);
-	// perror("execve");
-    return (0);
+	if (redir->type == R_IN)
+		return (redirect_input_file(redir->target));
+	if (redir->type == R_OUT)
+		return (redirect_output_truncate(redir->target));
+	if (redir->type == R_APPEND)
+		return (redirect_output_append(redir->target));
+	if (redir->type == R_HEREDOC)
+		return (apply_heredoc(redir->target));
+	return (0);
 }
-
-// take a file as the stdin and redirect it to the command
-int	reverse_crocodile(t_cmd *cmd)
-{
-	int	fd;
-        
-
-	fd = open(cmd->infile, O_RDONLY);
-	if (fd == -1)
-	{
-		perror("open");
-		return (-1);
-	}
-	if (dup2(fd, STDIN_FILENO) == -1)
-	{
-		perror("dup2");
-		close(fd);
-		return (-1);
-	}
-	close(fd);
-	// execve(cmd->path, cmd->args, env);
-	// perror("execve");
-
-    return 0;
-}
-
 
 int	apply_redirections(t_cmd *cmd)
 {
@@ -157,26 +113,8 @@ int	apply_redirections(t_cmd *cmd)
 	current = cmd->redirs;
 	while (current)
 	{
-		if (current->type == R_IN)
-		{
-			if (apply_input_file(current->target) == -1)
-				return (-1);
-		}
-		else if (current->type == R_OUT)
-		{
-			if (apply_output_file(current->target, 0) == -1)
-				return (-1);
-		}
-		else if (current->type == R_APPEND)
-		{
-			if (apply_output_file(current->target, 1) == -1)
-				return (-1);
-		}
-		else if (current->type == R_HEREDOC)
-		{
-			if (apply_heredoc(current->target) == -1)
-				return (-1);
-		}
+		if (apply_single_redirection(current) == -1)
+			return (-1);
 		current = current->next;
 	}
 	return (0);
