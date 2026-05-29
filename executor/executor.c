@@ -253,6 +253,8 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 void	free_cmd(t_cmd *cmd)
 {
 	int i;
+	t_redir	*current;
+	t_redir	*next;
 
 	if (cmd == NULL)
 		return ;
@@ -261,6 +263,14 @@ void	free_cmd(t_cmd *cmd)
 	{
 		free(cmd->args[i]);
 		i++;
+	}
+	current = cmd->redirs;
+	while (current != NULL)
+	{
+		next = current->next;
+		free(current->target);
+		free(current);
+		current = next;
 	}
 	free(cmd->args);
 	free(cmd->quoted);

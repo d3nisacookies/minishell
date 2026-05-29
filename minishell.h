@@ -26,6 +26,8 @@
 
 extern volatile sig_atomic_t	g_signal;
 
+typedef struct s_redir	t_redir;
+
 typedef struct s_cmd
 {
 	char			**args;
@@ -36,6 +38,7 @@ typedef struct s_cmd
 	int				append;
 	int				heredoc;
 	char			*heredoc_delim;
+	t_redir			*redirs;
 	struct s_cmd	*next;
 }	t_cmd;
 
@@ -44,6 +47,21 @@ typedef struct s_shell
 	char	**env;
 	int		last_exit;
 }	t_shell;
+
+typedef enum e_redir_type
+{
+	R_IN,
+	R_OUT,
+	R_APPEND,
+	R_HEREDOC
+}	t_redir_type;
+
+typedef struct s_redir
+{
+	t_redir_type	type;
+	char			*target;
+	struct s_redir	*next;
+}	t_redir;
 
 void	prompt_loop(t_shell *shell);
 t_cmd	*parse_command(char *input);
