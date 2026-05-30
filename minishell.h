@@ -121,6 +121,7 @@ char							*get_env_value(t_shell *shell, char *key);
 void							builtin_export(t_shell *shell, t_cmd *cmd);
 void							builtin_echo(t_shell *shell, t_cmd *cmd);
 void							builtin_unset(t_shell *shell, t_cmd *cmd);
+void							builtin_exit(t_shell *shell, t_cmd *cmd);
 int								builtin_cd(t_shell *shell, t_cmd *cmd);
 int								builtin_pwd(t_shell *shell);
 int								cd_get_target(t_shell *shell, t_cmd *cmd,

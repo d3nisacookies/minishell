@@ -14,6 +14,7 @@ SRC		=	main.c \
 			env/env.c \
 			env/env_utils.c \
 			executor/executor_expand.c \
+			executor/executor_exit.c \
 			executor/executor_exec_error.c \
 			executor/executor.c \
 			executor/executor_pipe.c \

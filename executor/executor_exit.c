@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static	intget_exit_sign(char *s, int *i, int *neg, unsigned long long *lim)
+static int	get_exit_sign(char *s, int *i, int *neg, unsigned long long *lim)
 {
 	*i = 0;
 	*neg = 0;
@@ -17,13 +17,13 @@ static	intget_exit_sign(char *s, int *i, int *neg, unsigned long long *lim)
 	return (s[*i] != '\0');
 }
 
-static	intparse_exit_code(char *s, unsigned char *code)
+static int	parse_exit_code(char *s, unsigned char *code)
 {
-	unsigned long	longvalue;
-	unsigned long	longlimit;
+	unsigned long long	value;
+	unsigned long long	limit;
+	int					negative;
+	int					i;
 
-	intnegative;
-	inti;
 	if (!get_exit_sign(s, &i, &negative, &limit))
 		return (0);
 	value = 0;
@@ -43,18 +43,23 @@ static	intparse_exit_code(char *s, unsigned char *code)
 	return (1);
 }
 
-voidbuiltin_exit(t_shell *shell, t_cmd *cmd)
+void	builtin_exit(t_shell *shell, t_cmd *cmd)
 {
-	unsigned	charcode;
+	unsigned char	code;
 
 	if (cmd->argc == 1)
-		exit(shell->last_exit);
+	{
+		shell->should_exit = 1;
+		return ;
+	}
 	if (!parse_exit_code(cmd->args[1], &code))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
-		exit(2);
+		shell->last_exit = 2;
+		shell->should_exit = 1;
+		return ;
 	}
 	if (cmd->argc > 2)
 	{
@@ -62,5 +67,6 @@ voidbuiltin_exit(t_shell *shell, t_cmd *cmd)
 		shell->last_exit = 1;
 		return ;
 	}
-	exit(code);
+	shell->last_exit = code;
+	shell->should_exit = 1;
 }
