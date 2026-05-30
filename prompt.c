@@ -1,136 +1,135 @@
 #include "minishell.h"
 
-static intsyntax_error_token(t_shell *shell, char *token)
+static	intsyntax_error_token(t_shell *shell, char *token)
 {
-parser_set_status(2);
-ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
-ft_putstr_fd(token, 2);
-ft_putstr_fd("'\n", 2);
-shell->last_exit = 2;
-return (-1);
+	parser_set_status(2);
+	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+	ft_putstr_fd(token, 2);
+	ft_putstr_fd("'\n", 2);
+	shell->last_exit = 2;
+	return (-1);
 }
 
-static intcheck_segment(char **segs, int idx, t_shell *shell)
+static	intcheck_segment(char **segs, int idx, t_shell *shell)
 {
-char*segment;
-char*prev;
+	char	*segment;
+	char	*prev;
 
-segment = trim_spaces(segs[idx]);
-if (segment[0] != '\0')
-{
-if (starts_with_pipe(segment))
-return (syntax_error_token(shell, "|"));
-if (segs[idx + 1] != NULL && ends_with_pipe(segment))
-return (syntax_error_token(shell, ";"));
-return (0);
-}
-if (idx > 0)
-{
-prev = trim_spaces(segs[idx - 1]);
-if (ends_with_pipe(prev))
-return (syntax_error_token(shell, ";"));
-}
-if (!is_trailing_empty_segment(segs, idx))
-{
-if (idx > 0 && segs[idx + 1] != NULL)
-return (syntax_error_token(shell, ";;"));
-return (syntax_error_token(shell, ";"));
-}
-return (1);
-}
-
-static intvalidate_segments(char **segments, t_shell *shell)
-{
-intidx;
-intret;
-
-idx = 0;
-while (segments[idx])
-{
-ret = check_segment(segments, idx, shell);
-if (ret == -1)
-return (-1);
-if (ret == 1)
-break ;
-idx++;
-}
-return (0);
+	segment = trim_spaces(segs[idx]);
+	if (segment[0] != '\0')
+	{
+		if (starts_with_pipe(segment))
+			return (syntax_error_token(shell, "|"));
+		if (segs[idx + 1] != NULL && ends_with_pipe(segment))
+			return (syntax_error_token(shell, ";"));
+		return (0);
+	}
+	if (idx > 0)
+	{
+		prev = trim_spaces(segs[idx - 1]);
+		if (ends_with_pipe(prev))
+			return (syntax_error_token(shell, ";"));
+	}
+	if (!is_trailing_empty_segment(segs, idx))
+	{
+		if (idx > 0 && segs[idx + 1] != NULL)
+			return (syntax_error_token(shell, ";;"));
+		return (syntax_error_token(shell, ";"));
+	}
+	return (1);
 }
 
-static intrun_segments(char **segments, t_shell *shell)
+static	intvalidate_segments(char **segments, t_shell *shell)
 {
-char*segment;
-t_cmd*cmd;
-intidx;
-intstatus;
-
-idx = 0;
-while (segments[idx])
-{
-segment = trim_spaces(segments[idx]);
-if (segment[0] == '\0')
-break ;
-cmd = parse_command(segment);
-if (cmd == NULL)
-{
-status = parser_get_status();
-if (!status)
-status = 1;
-shell->last_exit = status;
-free_split_array(segments);
-return (-1);
-}
-execute_command(cmd, shell);
-free_cmd_list(cmd);
-idx++;
-}
-return (0);
+	intidx;
+	intret;
+	idx = 0;
+	while (segments[idx])
+	{
+		ret = check_segment(segments, idx, shell);
+		if (ret == -1)
+			return (-1);
+		if (ret == 1)
+			break ;
+		idx++;
+	}
+	return (0);
 }
 
-static intexecute_input_segments(char *input, t_shell *shell)
+static	intrun_segments(char **segments, t_shell *shell)
 {
-char**segments;
-intstatus;
+	char	*segment;
+	t_cmd	*cmd;
 
-segments = split_semicolons(input);
-if (!segments)
-{
-status = parser_get_status();
-if (!status)
-status = 1;
-shell->last_exit = status;
-return (-1);
+	intidx;
+	intstatus;
+	idx = 0;
+	while (segments[idx])
+	{
+		segment = trim_spaces(segments[idx]);
+		if (segment[0] == '\0')
+			break ;
+		cmd = parse_command(segment);
+		if (cmd == NULL)
+		{
+			status = parser_get_status();
+			if (!status)
+				status = 1;
+			shell->last_exit = status;
+			free_split_array(segments);
+			return (-1);
+		}
+		execute_command(cmd, shell);
+		free_cmd_list(cmd);
+		idx++;
+	}
+	return (0);
 }
-if (validate_segments(segments, shell) == -1)
+
+static	intexecute_input_segments(char *input, t_shell *shell)
 {
-shell->last_exit = 1;
-free_split_array(segments);
-return (-1);
-}
-run_segments(segments, shell);
-free_split_array(segments);
-return (0);
+	char	**segments;
+
+	intstatus;
+	segments = split_semicolons(input);
+	if (!segments)
+	{
+		status = parser_get_status();
+		if (!status)
+			status = 1;
+		shell->last_exit = status;
+		return (-1);
+	}
+	if (validate_segments(segments, shell) == -1)
+	{
+		shell->last_exit = 1;
+		free_split_array(segments);
+		return (-1);
+	}
+	run_segments(segments, shell);
+	free_split_array(segments);
+	return (0);
 }
 
 voidprompt_loop(t_shell *shell)
 {
-char*input;
+	char	*input;
 
-while (1)
-{
-input = readline("$> ");
-if (input == NULL)
-{
-write(1, "\n", 1);
-break ;
-}
-if (strlen(input) == 0)
-{
-free(input);
-continue ;
-}
-add_history(input);
-execute_input_segments(input, shell);
-free(input);
-}
+	while (1)
+	{
+		input = readline("$> ");
+		if (input == NULL)
+		{
+			write(1, "\n", 1);
+			break ;
+		}
+		if (strlen(input) == 0)
+		{
+			free(input);
+			continue ;
+		}
+		add_history(input);
+		execute_input_segments(input, shell);
+		free(input);
+	}
 }

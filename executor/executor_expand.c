@@ -44,7 +44,7 @@ static char	*expand_argument(t_shell *shell, char *arg, int quote)
 	while (result && arg[i])
 	{
 		if (arg[i] != '$')
-			result = append_str(result, (char [2]){arg[i++], '\0'});
+			result = append_str(result, (char[2]){arg[i++], '\0'});
 		else if (arg[i + 1] == '?')
 		{
 			chunk = ft_itoa(shell->last_exit);
@@ -53,7 +53,7 @@ static char	*expand_argument(t_shell *shell, char *arg, int quote)
 			i += 2;
 		}
 		else if (!ft_isalpha(arg[i + 1]) && arg[i + 1] != '_')
-			result = append_str(result, (char [2]){arg[i++], '\0'});
+			result = append_str(result, (char[2]){arg[i++], '\0'});
 		else
 		{
 			start = ++i;
@@ -67,7 +67,8 @@ static char	*expand_argument(t_shell *shell, char *arg, int quote)
 	return (result);
 }
 
-static int	rebuild_args(t_cmd *cmd, char **new_args, int *new_quoted, int count)
+static int	rebuild_args(t_cmd *cmd, char **new_args, int *new_quoted,
+		int count)
 {
 	new_args[count] = NULL;
 	free(cmd->args);

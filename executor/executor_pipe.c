@@ -23,7 +23,8 @@ static void	set_last_status(t_shell *shell, int status)
 		shell->last_exit = 128 + WTERMSIG(status);
 }
 
-static void	wait_pipeline(pid_t *pids, int count, pid_t last_pid, t_shell *shell)
+static void	wait_pipeline(pid_t *pids, int count, pid_t last_pid,
+		t_shell *shell)
 {
 	int	i;
 	int	status;
@@ -69,15 +70,15 @@ static void	exec_pipeline_child(t_cmd *cmd, t_shell *shell, int fd_in,
 
 void	execute_pipeline(t_cmd *cmd, t_shell *shell)
 {
-	int		pipefd[2];
-	int		fd_in;
-	int		has_next;
-	int		count;
-	int		idx;
-	pid_t	pid;
-	pid_t	last_pid;
-	pid_t	*pids;
-	t_cmd	*current_cmd;
+	int pipefd[2];
+	int fd_in;
+	int has_next;
+	int count;
+	int idx;
+	pid_t pid;
+	pid_t last_pid;
+	pid_t *pids;
+	t_cmd *current_cmd;
 
 	if (!cmd)
 		return ;

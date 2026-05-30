@@ -107,9 +107,10 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 
 	if (ft_strcmp(cmd->args[0], "exit") == 0)
 		return (builtin_exit(shell, cmd), 1);
-	if (ft_strcmp(cmd->args[0], "echo") != 0 && ft_strcmp(cmd->args[0], "cd") != 0
-		&& ft_strcmp(cmd->args[0], "pwd") != 0 && ft_strcmp(cmd->args[0], "export") != 0
-		&& ft_strcmp(cmd->args[0], "unset") != 0)
+	if (ft_strcmp(cmd->args[0], "echo") != 0 && ft_strcmp(cmd->args[0],
+			"cd") != 0 && ft_strcmp(cmd->args[0], "pwd") != 0
+		&& ft_strcmp(cmd->args[0], "export") != 0 && ft_strcmp(cmd->args[0],
+			"unset") != 0)
 		return (0);
 	if (prepare_builtin_redirs(cmd, &saved_in, &saved_out) == -1)
 		return (shell->last_exit = 1, 1);

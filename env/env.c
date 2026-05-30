@@ -1,19 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   env.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 16:08:18 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 16:08:20 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libft/libft.h"
 #include "minishell.h"
 
 extern char	**environ;
-
-static int	count_env(char **envp)
-{
-	int	i;
-
-	if (!envp)
-		return (0);
-	i = 0;
-	while (envp[i])
-		i++;
-	return (i);
-}
 
 char	**copy_env(char **envp)
 {
@@ -49,26 +49,11 @@ int	find_env_index(char **env, char *key)
 	while (env[i])
 	{
 		if (ft_strncmp(env[i], key, key_len) == 0 && (env[i][key_len] == '='
-				|| env[i][key_len] == '\0'))
+			|| env[i][key_len] == '\0'))
 			return (i);
 		i++;
 	}
 	return (-1);
-}
-
-char	*make_env_entry(char *key, char *value)
-{
-	char	*tmp;
-	char	*entry;
-
-	if (!key || !value)
-		return (NULL);
-	tmp = ft_strjoin(key, "=");
-	if (!tmp)
-		return (NULL);
-	entry = ft_strjoin(tmp, value);
-	free(tmp);
-	return (entry);
 }
 
 void	append_env(char ***env, char *new_entry)
@@ -99,83 +84,36 @@ void	export_var(t_shell *shell, char *arg)
 {
 	char	*equals;
 	char	*key;
-	char	*value;
-	int		idx;
-	char	*new_entry;
 
 	if (!shell || !arg)
 		return ;
 	equals = ft_strchr(arg, '=');
 	if (!equals)
 	{
-		if (find_env_index(shell->env, arg) == -1)
-		{
-			append_env(&shell->env, ft_strdup(arg));
-			environ = shell->env;
-		}
+		export_existing(shell, arg);
 		return ;
 	}
 	key = ft_substr(arg, 0, equals - arg);
 	if (!key)
 		return ;
-	value = equals + 1;
-	new_entry = make_env_entry(key, value);
-	if (!new_entry)
-	{
-		free(key);
-		return ;
-	}
-	idx = find_env_index(shell->env, key);
+	export_update(shell, key, equals + 1);
 	free(key);
-	if (idx != -1)
-	{
-		free(shell->env[idx]);
-		shell->env[idx] = new_entry;
-		environ = shell->env;
-	}
-	else
-	{
-		append_env(&shell->env, new_entry);
-		environ = shell->env;
-	}
-}
-
-static int	env_len(char **env)
-{
-	int	len;
-
-	len = 0;
-	while (env[len])
-		len++;
-	return (len);
 }
 
 void	remove_env_index(t_shell *shell, int index)
 {
 	char	**new_env;
-	int	len;
-	int	old_i;
-	int	new_i;
+	int		len;
 
 	if (!shell || !shell->env || index < 0)
 		return ;
-	len = env_len(shell->env);
+	len = count_env(shell->env);
 	if (index >= len)
 		return ;
 	new_env = malloc(sizeof(char *) * len);
 	if (!new_env)
 		return ;
-	old_i = 0;
-	new_i = 0;
-	while (old_i < len)
-	{
-		if (old_i == index)
-			free(shell->env[old_i]);
-		else
-			new_env[new_i++] = shell->env[old_i];
-		old_i++;
-	}
-	new_env[new_i] = NULL;
+	copy_env_skip(new_env, shell->env, len, index);
 	free(shell->env);
 	shell->env = new_env;
 	environ = shell->env;
