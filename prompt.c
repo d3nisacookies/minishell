@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static	intsyntax_error_token(t_shell *shell, char *token)
+static int	syntax_error_token(t_shell *shell, char *token)
 {
 	parser_set_status(2);
 	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
@@ -10,7 +10,7 @@ static	intsyntax_error_token(t_shell *shell, char *token)
 	return (-1);
 }
 
-static	intcheck_segment(char **segs, int idx, t_shell *shell)
+static int	check_segment(char **segs, int idx, t_shell *shell)
 {
 	char	*segment;
 	char	*prev;
@@ -39,10 +39,10 @@ static	intcheck_segment(char **segs, int idx, t_shell *shell)
 	return (1);
 }
 
-static	intvalidate_segments(char **segments, t_shell *shell)
+static int	validate_segments(char **segments, t_shell *shell)
 {
-	intidx;
-	intret;
+	int	idx;
+	int	ret;
 	idx = 0;
 	while (segments[idx])
 	{
@@ -56,13 +56,13 @@ static	intvalidate_segments(char **segments, t_shell *shell)
 	return (0);
 }
 
-static	intrun_segments(char **segments, t_shell *shell)
+static int	run_segments(char **segments, t_shell *shell)
 {
 	char	*segment;
 	t_cmd	*cmd;
 
-	intidx;
-	intstatus;
+	int	idx;
+	int	status;
 	idx = 0;
 	while (segments[idx])
 	{
@@ -81,16 +81,18 @@ static	intrun_segments(char **segments, t_shell *shell)
 		}
 		execute_command(cmd, shell);
 		free_cmd_list(cmd);
+		if (shell->should_exit)
+			break ;
 		idx++;
 	}
 	return (0);
 }
 
-static	intexecute_input_segments(char *input, t_shell *shell)
+static int	execute_input_segments(char *input, t_shell *shell)
 {
 	char	**segments;
 
-	intstatus;
+	int	status;
 	segments = split_semicolons(input);
 	if (!segments)
 	{
@@ -111,7 +113,7 @@ static	intexecute_input_segments(char *input, t_shell *shell)
 	return (0);
 }
 
-voidprompt_loop(t_shell *shell)
+void	prompt_loop(t_shell *shell)
 {
 	char	*input;
 
@@ -131,5 +133,7 @@ voidprompt_loop(t_shell *shell)
 		add_history(input);
 		execute_input_segments(input, shell);
 		free(input);
+		if (shell->should_exit)
+			break ;
 	}
 }

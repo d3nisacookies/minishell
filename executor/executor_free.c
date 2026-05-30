@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static	voidfree_redirections(t_redir *redirs)
+static void	free_redirections(t_redir *redirs)
 {
 	t_redir	*next;
 
@@ -13,9 +13,9 @@ static	voidfree_redirections(t_redir *redirs)
 	}
 }
 
-voidfree_cmd(t_cmd *cmd)
+void	free_cmd(t_cmd *cmd)
 {
-	inti;
+	int	i;
 	if (!cmd)
 		return ;
 	i = 0;
@@ -30,7 +30,7 @@ voidfree_cmd(t_cmd *cmd)
 	free(cmd);
 }
 
-voidfree_cmd_list(t_cmd *cmd)
+void	free_cmd_list(t_cmd *cmd)
 {
 	t_cmd	*next;
 

@@ -14,7 +14,7 @@
 
 static int	validate_syntax(char *input);
 
-static void	free_cmd_list(t_cmd *cmd)
+static void	free_cmd_chain(t_cmd *cmd)
 {
 	t_cmd	*next;
 
@@ -66,7 +66,7 @@ static int	build_cmd_list(char **pipeline, t_cmd **head)
 		if (append_cmd(head, &current, pipeline[i]) == -1)
 		{
 			free_pipeline_rest(pipeline, i);
-			free_cmd_list(*head);
+			free_cmd_chain(*head);
 			return (-1);
 		}
 		free(pipeline[i]);

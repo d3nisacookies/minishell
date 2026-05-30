@@ -1,0 +1,185 @@
+{
+   readline_reachable_from_readline
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xmalloc
+   obj:*/libreadline.so*
+   ...
+   fun:readline
+   ...
+}
+
+{
+   readline_reachable_from_history
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xmalloc
+   obj:*/libreadline.so*
+   ...
+   fun:add_history
+   ...
+}
+
+{
+   readline_reachable_from_rl_initialize
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xmalloc
+   obj:*/libreadline.so*
+   ...
+   fun:rl_initialize
+   ...
+}
+
+{
+   readline_reachable_from_prompt_expand
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xmalloc
+   obj:*/libreadline.so*
+   ...
+   fun:rl_expand_prompt
+   ...
+}
+
+{
+   readline_reachable_realloc_from_readline
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:xrealloc
+   obj:*/libreadline.so*
+   ...
+   fun:readline
+   ...
+}
+
+{
+   readline_reachable_realloc_from_redisplay
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:xrealloc
+   obj:*/libreadline.so*
+   ...
+   fun:rl_redisplay
+   ...
+}
+
+{
+   readline_reachable_malloc_xrealloc_path
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xrealloc
+   obj:*/libreadline.so*
+   ...
+   fun:readline
+   ...
+}
+
+{
+   tinfo_reachable_malloc_from_tgetent
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libtinfo.so*
+   ...
+   fun:tgetent_sp
+   ...
+   fun:readline
+   ...
+}
+
+{
+   tinfo_reachable_calloc_from_tgetent
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   obj:*/libtinfo.so*
+   ...
+   fun:tgetent_sp
+   ...
+   fun:readline
+   ...
+}
+
+{
+   tinfo_reachable_realloc_from_tgetent
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   obj:*/libtinfo.so*
+   ...
+   fun:tgetent_sp
+   ...
+   fun:readline
+   ...
+}
+
+{
+   tinfo_reachable_strdup_from_tgetent
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   obj:*/libtinfo.so*
+   ...
+   fun:tgetent_sp
+   ...
+   fun:readline
+   ...
+}
+
+{
+   tinfo_reachable_tsearch_from_tgetent
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:tsearch
+   obj:*/libtinfo.so*
+   ...
+   fun:tgetent_sp
+   ...
+   fun:readline
+   ...
+}
+
+{
+   readline_reachable_add_history_any
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libreadline.so*
+   ...
+   fun:add_history
+   ...
+}
+
+{
+   readline_reachable_rl_initialize_any
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libreadline.so*
+   ...
+   fun:rl_initialize
+   ...
+}
+
+{
+   tinfo_reachable_tgetstr_entry_cache
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   obj:*/libtinfo.so*
+   ...
+   fun:tgetstr_sp
+   ...
+   fun:readline
+   ...
+}

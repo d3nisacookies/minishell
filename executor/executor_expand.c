@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static char	*get_env_value(t_shell *shell, char *key)
+static char	*lookup_env_value(t_shell *shell, char *key)
 {
 	int		idx;
 	char	*equals;
@@ -60,7 +60,7 @@ static char	*expand_argument(t_shell *shell, char *arg, int quote)
 			while (arg[i] && (ft_isalnum(arg[i]) || arg[i] == '_'))
 				i++;
 			key = ft_substr(arg, start, i - start);
-			result = append_str(result, get_env_value(shell, key));
+			result = append_str(result, lookup_env_value(shell, key));
 			free(key);
 		}
 	}

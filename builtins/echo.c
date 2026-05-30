@@ -24,20 +24,16 @@ static int	expand_variable(t_shell *shell, char *arg, int i)
 		i++;
 	key = ft_substr(arg, start, i - start);
 	if (!key)
-		return (1);
+		return (i);
 	value = get_env_value(shell, key);
 	if (value)
 		ft_printf("%s", value);
 	free(key);
-	return (1);
+	return (i);
 }
 
 static int	print_expansion(t_shell *shell, char *arg, int i)
 {
-	char	*key;
-	char	*value;
-	int		start;
-
 	if (arg[i + 1] == '?')
 	{
 		ft_printf("%d", shell->last_exit);
@@ -48,7 +44,7 @@ static int	print_expansion(t_shell *shell, char *arg, int i)
 		ft_printf("$");
 		return (i + 1);
 	}
-	return (print_expansion(shell, arg, i));
+	return (expand_variable(shell, arg, i));
 }
 
 static void	print_echo_arg(t_shell *shell, char *arg, int quote)

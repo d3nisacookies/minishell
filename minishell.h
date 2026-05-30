@@ -61,6 +61,7 @@ typedef struct s_shell
 {
 	char						**env;
 	int							last_exit;
+	int						should_exit;
 }								t_shell;
 
 /* ── Prompt ── */
@@ -92,6 +93,7 @@ int								executor_expand_args(t_cmd *cmd,
 									t_shell *shell);
 void							executor_exit_exec_error(char *cmd_name);
 void							free_cmd(t_cmd *cmd);
+void							free_cmd_list(t_cmd *cmd);
 
 /* ── Redirections ── */
 int								apply_redirections(t_cmd *cmd);
@@ -134,5 +136,9 @@ int								is_var_char(char c);
 int								is_only_variable(char *str);
 char							*ft_strtok(char *str, const char *delim);
 char							**split_semicolons(char *input);
+char							*trim_spaces(char *s);
+int							starts_with_pipe(char *segment);
+int							ends_with_pipe(char *segment);
+int							is_trailing_empty_segment(char **segments, int index);
 
 #endif

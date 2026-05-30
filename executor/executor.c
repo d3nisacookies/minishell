@@ -51,13 +51,18 @@ static void	builtin_exit(t_shell *shell, t_cmd *cmd)
 	unsigned char	code;
 
 	if (cmd->argc == 1)
-		exit(shell->last_exit);
+	{
+		shell->should_exit = 1;
+		return ;
+	}
 	if (!parse_exit_code(cmd->args[1], &code))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
-		exit(2);
+		shell->last_exit = 2;
+		shell->should_exit = 1;
+		return ;
 	}
 	if (cmd->argc > 2)
 	{
@@ -65,7 +70,8 @@ static void	builtin_exit(t_shell *shell, t_cmd *cmd)
 		shell->last_exit = 1;
 		return ;
 	}
-	exit(code);
+	shell->last_exit = code;
+	shell->should_exit = 1;
 }
 
 static void	restore_stdio(int saved_in, int saved_out)
@@ -199,4 +205,16 @@ void	free_cmd(t_cmd *cmd)
 	free(cmd->outfile);
 	free(cmd->heredoc_delim);
 	free(cmd);
+}
+
+void	free_cmd_list(t_cmd *cmd)
+{
+	t_cmd	*next;
+
+	while (cmd)
+	{
+		next = cmd->next;
+		free_cmd(cmd);
+		cmd = next;
+	}
 }

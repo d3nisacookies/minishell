@@ -4,8 +4,11 @@ LDFLAGS	=	-lreadline
 
 SRC		=	main.c \
 			prompt.c \
+			prompt_utils.c \
 			builtins/cd_pwd.c \
+			builtins/cd_utils.c \
 			builtins/echo.c \
+			builtins/echo_utils.c \
 			builtins/export.c \
 			builtins/unset.c \
 			env/env.c \
