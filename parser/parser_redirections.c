@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_redirections.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 17:28:22 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 17:29:57 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static t_redir_type	get_redir_type(char *op)
@@ -67,13 +79,15 @@ static int	sync_legacy_redirection(t_cmd *cmd, t_redir_type type, char *target)
 int	parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i)
 {
 	char			*file;
-	int			was_quoted;
+	int				was_quoted;
 	t_redir			*new_redir;
 	t_redir_type	type;
+
 	parser_skip_spaces(input, i);
 	if (!input[*i])
 		return (parser_set_status(2), ft_putstr_fd(
-				"minishell: syntax error near unexpected token `newline'\n", 2), -1);
+				"minishell: syntax error near unexpected token `newline'\n"
+				, 2), -1);
 	file = parser_extract_word(input, i, &was_quoted);
 	if (!file)
 		return (-1);

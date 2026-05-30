@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_semicolons.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 17:28:30 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 17:59:07 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static int	quote_state_changed(char *quote, char c)
@@ -25,11 +37,13 @@ static int	fill_loop(char **list, char *input, int *range, char *quote)
 	i = 0;
 	while (input[i])
 	{
-		if (!quote_state_changed(quote, input[i])
-			&& *quote == 0 && input[i] == ';'
-			&& (range[1] = i) >= 0
-			&& append_segment(list, &range[2], input, range) == -1)
-			return (-1);
+		if (!quote_state_changed(quote, input[i]) && *quote == 0
+			&& input[i] == ';')
+		{
+			range[1] = i;
+			if (append_segment(list, &range[2], input, range) == -1)
+				return (-1);
+		}
 		if (*quote == 0 && input[i] == ';')
 			range[0] = i + 1;
 		i++;

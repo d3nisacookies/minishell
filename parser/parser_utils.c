@@ -3,25 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aungk <aungk@student.42.fr>                +#+  +:+       +#+        */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/16 10:00:00 by aungk             #+#    #+#             */
-/*   Updated: 2026/05/16 10:00:00 by aungk            ###   ########.fr       */
+/*   Updated: 2026/05/30 18:01:20 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	g_parser_status;
-
-void	parser_set_status(int status)
+void	parser_set_status(t_shell *shell, int status)
 {
-	g_parser_status = status;
+	shell->parser_status = status;
 }
 
-int	parser_get_status(void)
+int	parser_get_status(t_shell *shell)
 {
-	return (g_parser_status);
+	return (shell->parser_status);
 }
 
 int	parser_is_space(char c)

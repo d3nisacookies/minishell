@@ -1,9 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_words.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 17:28:53 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 17:30:37 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static int	get_word_len(char *s, int i)
 {
 	int	len;
 	int	next;
+
 	if (parser_is_redir_char(s[i]))
 		return (parser_get_redir_len(s, i));
 	len = 0;
