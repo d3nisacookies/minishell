@@ -1,15 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor_pipe.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 17:15:04 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 17:16:30 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 extern char	**environ;
-
-typedef struct s_pipe_exec
-{
-	t_cmd	*cmd;
-	pid_t	*pids;
-	int		idx;
-	int		fd_in;
-	pid_t	last_pid;
-} 				t_pipe_exec;
 
 static void	close_pipe_pair(int *pipefd, int has_next)
 {
@@ -70,6 +73,7 @@ static int	run_pipeline_step(t_pipe_exec *px, t_shell *shell)
 	int		pipefd[2];
 	int		has_next;
 	pid_t	pid;
+
 	if (executor_expand_args(px->cmd, shell) == -1)
 		return (shell->last_exit = 1, -1);
 	has_next = (px->cmd->next != NULL);
@@ -111,7 +115,9 @@ void	execute_pipeline(t_cmd *cmd, t_shell *shell)
 	px.cmd = cmd;
 	while (px.cmd && run_pipeline_step(&px, shell) == 0)
 		px.cmd = px.cmd->next;
-	if (px.fd_in != -1) close(px.fd_in);
-	if (px.idx > 0) wait_pipeline(px.pids, px.idx, px.last_pid, shell);
+	if (px.fd_in != -1)
+		close(px.fd_in);
+	if (px.idx > 0)
+		wait_pipeline(px.pids, px.idx, px.last_pid, shell);
 	free(px.pids);
 }

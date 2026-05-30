@@ -61,8 +61,25 @@ typedef struct s_shell
 {
 	char						**env;
 	int							last_exit;
-	int						should_exit;
+	int							should_exit;
 }								t_shell;
+
+typedef struct s_expand_build
+{
+	char						**new_args;
+	int							*new_quoted;
+	int							i;
+	int							count;
+}								t_expand_build;
+
+typedef struct s_pipe_exec
+{
+	t_cmd						*cmd;
+	pid_t						*pids;
+	int							idx;
+	int							fd_in;
+	pid_t						last_pid;
+}								t_pipe_exec;
 
 /* ── Prompt ── */
 void							prompt_loop(t_shell *shell);
@@ -137,8 +154,9 @@ int								is_only_variable(char *str);
 char							*ft_strtok(char *str, const char *delim);
 char							**split_semicolons(char *input);
 char							*trim_spaces(char *s);
-int							starts_with_pipe(char *segment);
-int							ends_with_pipe(char *segment);
-int							is_trailing_empty_segment(char **segments, int index);
+int								starts_with_pipe(char *segment);
+int								ends_with_pipe(char *segment);
+int								is_trailing_empty_segment(char **segments,
+									int index);
 
 #endif

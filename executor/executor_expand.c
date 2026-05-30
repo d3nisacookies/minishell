@@ -1,12 +1,16 @@
-#include "minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor_expand.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 17:14:47 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 17:14:48 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-typedef struct s_expand_build
-{
-	char	**new_args;
-	int		*new_quoted;
-	int		i;
-	int		count;
-} 				t_expand_build;
+#include "minishell.h"
 
 static char	*append_str(char *dst, char *src)
 {
