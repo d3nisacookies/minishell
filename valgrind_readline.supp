@@ -183,3 +183,13 @@
    fun:readline
    ...
 }
+
+{
+readline_rl_initialize_16b
+Memcheck:Leak
+match-leak-kinds: reachable
+fun:malloc
+fun:rl_initialize
+fun:readline
+...
+}
