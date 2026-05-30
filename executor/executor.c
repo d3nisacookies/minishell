@@ -49,7 +49,10 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 	if (prepare_builtin_redirs(cmd, &saved_in, &saved_out) == -1)
 		return (shell->last_exit = 1, 1);
 	if (ft_strcmp(cmd->args[0], "echo") == 0)
+	{
 		builtin_echo(shell, cmd);
+		shell->last_exit = 0;
+	}
 	else if (ft_strcmp(cmd->args[0], "cd") == 0)
 		shell->last_exit = builtin_cd(shell, cmd);
 	else if (ft_strcmp(cmd->args[0], "pwd") == 0)
@@ -59,8 +62,6 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 	else
 		builtin_unset(shell, cmd);
 	restore_stdio(saved_in, saved_out);
-	if (ft_strcmp(cmd->args[0], "cd") != 0)
-		shell->last_exit = 0;
 	return (1);
 }
 

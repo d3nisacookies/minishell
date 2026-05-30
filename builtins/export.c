@@ -57,6 +57,7 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 
 	if (!shell || !cmd || !cmd->args)
 		return ;
+	shell->last_exit = 0;
 	if (cmd->argc == 1)
 	{
 		print_export(shell->env);
