@@ -2,25 +2,22 @@
 
 extern char	**environ;
 
-static int	count_cmds(t_cmd *cmd)
+typedef struct s_pipe_exec
 {
-	int	count;
+	t_cmd	*cmd;
+	pid_t	*pids;
+	int		idx;
+	int		fd_in;
+	pid_t	last_pid;
+} 				t_pipe_exec;
 
-	count = 0;
-	while (cmd)
+static void	close_pipe_pair(int *pipefd, int has_next)
+{
+	if (has_next)
 	{
-		count++;
-		cmd = cmd->next;
+		close(pipefd[0]);
+		close(pipefd[1]);
 	}
-	return (count);
-}
-
-static void	set_last_status(t_shell *shell, int status)
-{
-	if (WIFEXITED(status))
-		shell->last_exit = WEXITSTATUS(status);
-	else if (WIFSIGNALED(status))
-		shell->last_exit = 128 + WTERMSIG(status);
 }
 
 static void	wait_pipeline(pid_t *pids, int count, pid_t last_pid,
@@ -33,107 +30,88 @@ static void	wait_pipeline(pid_t *pids, int count, pid_t last_pid,
 	while (i < count)
 	{
 		if (waitpid(pids[i], &status, 0) > 0 && pids[i] == last_pid)
-			set_last_status(shell, status);
+		{
+			if (WIFEXITED(status))
+				shell->last_exit = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				shell->last_exit = 128 + WTERMSIG(status);
+		}
 		i++;
 	}
 }
 
-int	have_next_pipe(t_cmd *cmd)
-{
-	return (cmd && cmd->next != NULL);
-}
-
-static void	exec_pipeline_child(t_cmd *cmd, t_shell *shell, int fd_in,
-		int pipefd[2], int has_next)
+static void	exec_pipeline_child(t_pipe_exec *px, t_shell *shell, int *pipefd,
+		int has_next)
 {
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	if (fd_in != -1)
-		dup2(fd_in, STDIN_FILENO);
+	if (px->fd_in != -1)
+		dup2(px->fd_in, STDIN_FILENO);
 	if (has_next)
 		dup2(pipefd[1], STDOUT_FILENO);
-	if (fd_in != -1)
-		close(fd_in);
+	if (px->fd_in != -1)
+		close(px->fd_in);
 	if (has_next)
 	{
 		close(pipefd[0]);
 		close(pipefd[1]);
 	}
-	if (apply_redirections(cmd) == -1)
+	if (apply_redirections(px->cmd) == -1)
 		exit(1);
-	if (!cmd->args || !cmd->args[0])
+	if (!px->cmd->args || !px->cmd->args[0])
 		exit(0);
 	environ = shell->env;
-	execvp(cmd->args[0], cmd->args);
-	executor_exit_exec_error(cmd->args[0]);
+	execvp(px->cmd->args[0], px->cmd->args);
+	executor_exit_exec_error(px->cmd->args[0]);
+}
+
+static int	run_pipeline_step(t_pipe_exec *px, t_shell *shell)
+{
+	int		pipefd[2];
+	int		has_next;
+	pid_t	pid;
+	if (executor_expand_args(px->cmd, shell) == -1)
+		return (shell->last_exit = 1, -1);
+	has_next = (px->cmd->next != NULL);
+	if (has_next && pipe(pipefd) == -1)
+		return (perror("pipe"), shell->last_exit = 1, -1);
+	pid = fork();
+	if (pid == -1)
+		return (close_pipe_pair(pipefd, has_next), perror("fork"),
+			shell->last_exit = 1, -1);
+	if (pid == 0)
+		exec_pipeline_child(px, shell, pipefd, has_next);
+	px->pids[px->idx++] = pid;
+	px->last_pid = pid;
+	if (px->fd_in != -1)
+		close(px->fd_in);
+	if (has_next)
+		return (close(pipefd[1]), px->fd_in = pipefd[0], 0);
+	px->fd_in = -1;
+	return (0);
 }
 
 void	execute_pipeline(t_cmd *cmd, t_shell *shell)
 {
-	int pipefd[2];
-	int fd_in;
-	int has_next;
-	int count;
-	int idx;
-	pid_t pid;
-	pid_t last_pid;
-	pid_t *pids;
-	t_cmd *current_cmd;
+	t_pipe_exec	px;
+	int			count;
 
 	if (!cmd)
 		return ;
-	count = count_cmds(cmd);
-	pids = malloc(sizeof(pid_t) * count);
-	if (!pids)
+	count = 0;
+	px.cmd = cmd;
+	while (px.cmd && ++count)
+		px.cmd = px.cmd->next;
+	px.pids = malloc(sizeof(pid_t) * count);
+	if (!px.pids)
 		return ((void)(shell->last_exit = 1));
-	idx = 0;
-	last_pid = -1;
-	fd_in = -1;
-	current_cmd = cmd;
-	while (current_cmd)
-	{
-		if (executor_expand_args(current_cmd, shell) == -1)
-		{
-			shell->last_exit = 1;
-			break ;
-		}
-		has_next = have_next_pipe(current_cmd);
-		if (has_next && pipe(pipefd) == -1)
-		{
-			perror("pipe");
-			shell->last_exit = 1;
-			break ;
-		}
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			shell->last_exit = 1;
-			if (has_next)
-			{
-				close(pipefd[0]);
-				close(pipefd[1]);
-			}
-			break ;
-		}
-		if (pid == 0)
-			exec_pipeline_child(current_cmd, shell, fd_in, pipefd, has_next);
-		pids[idx++] = pid;
-		last_pid = pid;
-		if (fd_in != -1)
-			close(fd_in);
-		if (has_next)
-		{
-			close(pipefd[1]);
-			fd_in = pipefd[0];
-		}
-		else
-			fd_in = -1;
-		current_cmd = current_cmd->next;
-	}
-	if (fd_in != -1)
-		close(fd_in);
-	if (idx > 0)
-		wait_pipeline(pids, idx, last_pid, shell);
-	free(pids);
+	px.idx = 0;
+	px.fd_in = -1;
+	px.last_pid = -1;
+	px.cmd = cmd;
+	while (px.cmd && run_pipeline_step(&px, shell) == 0)
+		px.cmd = px.cmd->next;
+	if (px.fd_in != -1) close(px.fd_in);
+	if (px.idx > 0) wait_pipeline(px.pids, px.idx, px.last_pid, shell);
+	free(px.pids);
 }

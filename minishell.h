@@ -88,7 +88,6 @@ int								parser_set_redirection(t_cmd *cmd, char *op,
 /* ── Executor ── */
 void							execute_command(t_cmd *cmd, t_shell *shell);
 void							execute_pipeline(t_cmd *cmd, t_shell *shell);
-int								have_next_pipe(t_cmd *cmd);
 int								executor_expand_args(t_cmd *cmd,
 									t_shell *shell);
 void							executor_exit_exec_error(char *cmd_name);

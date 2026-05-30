@@ -16,22 +16,21 @@ static void	restore_stdio(int saved_in, int saved_out)
 	}
 }
 
-static int	prepare_builtin_redirs(t_cmd *cmd, int *saved_in, int *saved_out)
+static void	run_regular_builtin(t_cmd *cmd, t_shell *shell)
 {
-	*saved_in = dup(STDIN_FILENO);
-	*saved_out = dup(STDOUT_FILENO);
-	if (*saved_in == -1 || *saved_out == -1)
+	if (ft_strcmp(cmd->args[0], "echo") == 0)
 	{
-		perror("dup");
-		restore_stdio(*saved_in, *saved_out);
-		return (-1);
+		builtin_echo(shell, cmd);
+		shell->last_exit = 0;
 	}
-	if (apply_redirections(cmd) == -1)
-	{
-		restore_stdio(*saved_in, *saved_out);
-		return (-1);
-	}
-	return (0);
+	else if (ft_strcmp(cmd->args[0], "cd") == 0)
+		shell->last_exit = builtin_cd(shell, cmd);
+	else if (ft_strcmp(cmd->args[0], "pwd") == 0)
+		shell->last_exit = builtin_pwd(shell);
+	else if (ft_strcmp(cmd->args[0], "export") == 0)
+		builtin_export(shell, cmd);
+	else
+		builtin_unset(shell, cmd);
 }
 
 static int	execute_builtin(t_cmd *cmd, t_shell *shell)
@@ -46,21 +45,14 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 		&& ft_strcmp(cmd->args[0], "export") != 0 && ft_strcmp(cmd->args[0],
 			"unset") != 0)
 		return (0);
-	if (prepare_builtin_redirs(cmd, &saved_in, &saved_out) == -1)
-		return (shell->last_exit = 1, 1);
-	if (ft_strcmp(cmd->args[0], "echo") == 0)
-	{
-		builtin_echo(shell, cmd);
-		shell->last_exit = 0;
-	}
-	else if (ft_strcmp(cmd->args[0], "cd") == 0)
-		shell->last_exit = builtin_cd(shell, cmd);
-	else if (ft_strcmp(cmd->args[0], "pwd") == 0)
-		shell->last_exit = builtin_pwd(shell);
-	else if (ft_strcmp(cmd->args[0], "export") == 0)
-		builtin_export(shell, cmd);
-	else
-		builtin_unset(shell, cmd);
+	saved_in = dup(STDIN_FILENO);
+	saved_out = dup(STDOUT_FILENO);
+	if (saved_in == -1 || saved_out == -1)
+		return (perror("dup"), restore_stdio(saved_in, saved_out),
+			shell->last_exit = 1, 1);
+	if (apply_redirections(cmd) == -1)
+		return (restore_stdio(saved_in, saved_out), shell->last_exit = 1, 1);
+	run_regular_builtin(cmd, shell);
 	restore_stdio(saved_in, saved_out);
 	return (1);
 }
@@ -103,47 +95,4 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	if (execute_builtin(cmd, shell))
 		return ;
 	execute_external(cmd, shell);
-}
-
-static void	free_redirections(t_redir *redirs)
-{
-	t_redir	*next;
-
-	while (redirs)
-	{
-		next = redirs->next;
-		free(redirs->target);
-		free(redirs);
-		redirs = next;
-	}
-}
-
-void	free_cmd(t_cmd *cmd)
-{
-	int	i;
-
-	if (!cmd)
-		return ;
-	i = 0;
-	while (cmd->args && cmd->args[i])
-		free(cmd->args[i++]);
-	free_redirections(cmd->redirs);
-	free(cmd->args);
-	free(cmd->quoted);
-	free(cmd->infile);
-	free(cmd->outfile);
-	free(cmd->heredoc_delim);
-	free(cmd);
-}
-
-void	free_cmd_list(t_cmd *cmd)
-{
-	t_cmd	*next;
-
-	while (cmd)
-	{
-		next = cmd->next;
-		free_cmd(cmd);
-		cmd = next;
-	}
 }

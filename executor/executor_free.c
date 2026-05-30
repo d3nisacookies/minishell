@@ -16,6 +16,7 @@ static void	free_redirections(t_redir *redirs)
 void	free_cmd(t_cmd *cmd)
 {
 	int	i;
+
 	if (!cmd)
 		return ;
 	i = 0;
