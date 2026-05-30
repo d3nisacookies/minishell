@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd_pwd.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 14:13:27 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 14:17:52 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static int	set_shell_env_var(t_shell *shell, char *key, char *value)
+int	set_shell_env_var(t_shell *shell, char *key, char *value)
 {
 	char	*tmp;
 	char	*entry;
@@ -19,7 +31,7 @@ static int	set_shell_env_var(t_shell *shell, char *key, char *value)
 	return (0);
 }
 
-static char	*get_env_value(t_shell *shell, char *key)
+char	*get_env_value(t_shell *shell, char *key)
 {
 	int		idx;
 	char	*equals;
@@ -55,27 +67,11 @@ int	builtin_cd(t_shell *shell, t_cmd *cmd)
 {
 	char	*target;
 	char	*oldpwd;
-	char	*newpwd;
 
 	if (!shell || !cmd || !cmd->args)
 		return (1);
-	if (cmd->argc > 2)
-	{
-		ft_putstr_fd("cd: too many arguments\n", 2);
+	if (cd_get_target(shell, cmd, &target))
 		return (1);
-	}
-	target = cmd->args[1];
-	if (target && target[0] == '$' && target[1] != '\0')
-		target = get_env_value(shell, target + 1);
-	if (!target)
-	{
-		target = get_env_value(shell, "HOME");
-		if (!target || target[0] == '\0')
-		{
-			ft_putstr_fd("cd: HOME not set\n", 2);
-			return (1);
-		}
-	}
 	oldpwd = getcwd(NULL, 0);
 	if (chdir(target) == -1)
 	{
@@ -83,16 +79,5 @@ int	builtin_cd(t_shell *shell, t_cmd *cmd)
 		free(oldpwd);
 		return (1);
 	}
-	newpwd = getcwd(NULL, 0);
-	if (oldpwd)
-	{
-		set_shell_env_var(shell, "OLDPWD", oldpwd);
-		free(oldpwd);
-	}
-	if (newpwd)
-	{
-		set_shell_env_var(shell, "PWD", newpwd);
-		free(newpwd);
-	}
-	return (0);
+	return (cd_update_pwd(shell, oldpwd));
 }

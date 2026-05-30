@@ -1,50 +1,35 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   echo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 14:14:38 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 14:26:52 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static char	*get_env_value(t_shell *shell, char *key)
+static int	expand_variable(t_shell *shell, char *arg, int i)
 {
-	int		idx;
-	char	*equals;
+	char	*key;
+	char	*value;
+	int		start;
 
-	if (!shell || !shell->env || !key || key[0] == '\0')
-		return (NULL);
-	idx = find_env_index(shell->env, key);
-	if (idx == -1)
-		return (NULL);
-	equals = ft_strchr(shell->env[idx], '=');
-	if (!equals)
-		return ("");
-	return (equals + 1);
-}
-
-// static void	print_echo_arg(t_shell *shell, char *arg)
-// {
-// 	char	*value;
-
-// 	if (!arg)
-// 		return ;
-// 	if (arg[0] == '$' && arg[1] != '\0')
-// 	{
-// 		if (arg[1] == '?' && arg[2] == '\0')
-// 		{
-// 			ft_printf("%d", shell->last_exit);
-// 			return ;
-// 		}
-// 		value = get_env_value(shell, arg + 1);
-// 		if (value)
-// 			ft_printf("%s", value);
-// 		return ;
-// 	}
-// 	ft_printf("%s", arg);
-// }
-
-static int	is_var_start(char c)
-{
-	return (ft_isalpha(c) || c == '_');
-}
-
-static int	is_var_char(char c)
-{
-	return (ft_isalnum(c) || c == '_');
+	start = i + 1;
+	i = start;
+	while (arg[i] && is_var_char(arg[i]))
+		i++;
+	key = ft_substr(arg, start, i - start);
+	if (!key)
+		return (1);
+	value = get_env_value(shell, key);
+	if (value)
+		ft_printf("%s", value);
+	free(key);
+	return (1);
 }
 
 static int	print_expansion(t_shell *shell, char *arg, int i)
@@ -63,18 +48,7 @@ static int	print_expansion(t_shell *shell, char *arg, int i)
 		ft_printf("$");
 		return (i + 1);
 	}
-	start = i + 1;
-	i = start;
-	while (arg[i] && is_var_char(arg[i]))
-		i++;
-	key = ft_substr(arg, start, i - start);
-	if (!key)
-		return (i);
-	value = get_env_value(shell, key);
-	if (value)
-		ft_printf("%s", value);
-	free(key);
-	return (i);
+	return (print_expansion(shell, arg, i));
 }
 
 static void	print_echo_arg(t_shell *shell, char *arg, int quote)
