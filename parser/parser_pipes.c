@@ -104,7 +104,7 @@ static int	split_loop(char *input, char **res, int *j)
 	return (0);
 }
 
-char	**split_pipes(char *input)
+char	**split_pipes(char *input, t_shell *shell)
 {
 	char	**res;
 	int		j;
@@ -112,13 +112,13 @@ char	**split_pipes(char *input)
 
 	pipes = count_pipes(input);
 	if (pipes < 0)
-		return (parser_put_unmatched_quote_error(), NULL);
+		return (parser_put_unmatched_quote_error(shell), NULL);
 	res = malloc(sizeof(char *) * (pipes + 1));
 	if (!res)
 		return (NULL);
 	j = 0;
 	if (split_loop(input, res, &j) == -1)
-		return (parser_free_split(res, j), parser_put_pipe_error(), NULL);
+		return (parser_free_split(res, j), parser_put_pipe_error(shell), NULL);
 	res[j] = NULL;
 	return (res);
 }

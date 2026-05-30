@@ -2,7 +2,7 @@
 
 static int	syntax_error_token(t_shell *shell, char *token)
 {
-	parser_set_status(2);
+	parser_set_status(shell, 2);
 	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
 	ft_putstr_fd(token, 2);
 	ft_putstr_fd("'\n", 2);
@@ -69,10 +69,10 @@ static int	run_segments(char **segments, t_shell *shell)
 		segment = trim_spaces(segments[idx]);
 		if (segment[0] == '\0')
 			break ;
-		cmd = parse_command(segment);
+		cmd = parse_command(segment, shell);
 		if (cmd == NULL)
 		{
-			status = parser_get_status();
+			status = parser_get_status(shell);
 			if (!status)
 				status = 1;
 			shell->last_exit = status;
@@ -93,10 +93,10 @@ static int	execute_input_segments(char *input, t_shell *shell)
 	char	**segments;
 
 	int	status;
-	segments = split_semicolons(input);
+	segments = split_semicolons(input, shell);
 	if (!segments)
 	{
-		status = parser_get_status();
+		status = parser_get_status(shell);
 		if (!status)
 			status = 1;
 		shell->last_exit = status;

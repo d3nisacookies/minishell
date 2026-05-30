@@ -52,7 +52,7 @@ static int	fill_loop(char **list, char *input, int *range, char *quote)
 	return (0);
 }
 
-static int	fill_segments(char **list, char *input)
+static int	fill_segments(char **list, char *input, t_shell *shell)
 {
 	int		range[3];
 	char	quote;
@@ -63,14 +63,14 @@ static int	fill_segments(char **list, char *input)
 	if (fill_loop(list, input, range, &quote) == -1)
 		return (-1);
 	if (quote != 0)
-		return (parser_put_unmatched_quote_error(), -1);
+		return (parser_put_unmatched_quote_error(shell), -1);
 	if (append_segment(list, &range[2], input, range) == -1)
 		return (-1);
 	list[range[2]] = NULL;
 	return (0);
 }
 
-char	**split_semicolons(char *input)
+char	**split_semicolons(char *input, t_shell *shell)
 {
 	char	**list;
 	int		count;
@@ -79,7 +79,7 @@ char	**split_semicolons(char *input)
 	list = malloc(sizeof(char *) * (count + 2));
 	if (!list)
 		return (NULL);
-	if (fill_segments(list, input) == -1)
+	if (fill_segments(list, input, shell) == -1)
 	{
 		free_split_array(list);
 		return (NULL);

@@ -86,18 +86,18 @@ typedef struct s_pipe_exec
 void							prompt_loop(t_shell *shell);
 
 /* ── Parser ── */
-t_cmd							*parse_command(char *input);
-t_cmd							*parse_single(char *input);
-char							**split_pipes(char *input);
-int								parser_validate_syntax(char *input);
+t_cmd							*parse_command(char *input, t_shell *shell);
+t_cmd							*parse_single(char *input, t_shell *shell);
+char							**split_pipes(char *input, t_shell *shell);
+int								parser_validate_syntax(char *input, t_shell *shell);
 int								parser_is_space(char c);
 int								parser_is_redir_char(char c);
 int								parser_skip_quoted(char *s, int i);
 int								parser_get_redir_len(char *s, int i);
 void							parser_skip_spaces(char *s, int *i);
 void							parser_free_split(char **split, int count);
-void							parser_put_unmatched_quote_error(void);
-void							parser_put_pipe_error(void);
+void							parser_put_unmatched_quote_error(t_shell *shell);
+void							parser_put_pipe_error(t_shell *shell);
 void							parser_set_status(t_shell *shell, int status);
 int								parser_get_status(t_shell *shell);
 int								parser_count_args(char *s);
@@ -105,7 +105,7 @@ char							*parser_extract_word(char *s, int *i,
 									int *was_quoted);
 int								parser_is_redirection(char *word);
 int								parser_set_redirection(t_cmd *cmd, char *op,
-									char *input, int *i);
+									char *input, int *i, t_shell *shell);
 
 /* ── Executor ── */
 void							execute_command(t_cmd *cmd, t_shell *shell);
@@ -157,7 +157,7 @@ int								is_var_start(char c);
 int								is_var_char(char c);
 int								is_only_variable(char *str);
 char							*ft_strtok(char *str, const char *delim);
-char							**split_semicolons(char *input);
+char							**split_semicolons(char *input, t_shell *shell);
 int								parser_count_semicolons(char *input);
 char							*trim_spaces(char *s);
 int								starts_with_pipe(char *segment);

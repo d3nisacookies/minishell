@@ -37,11 +37,12 @@ static void	free_pipeline_rest(char **pipeline, int start)
 	free(pipeline);
 }
 
-static int	append_cmd(t_cmd **head, t_cmd **current, char *segment)
+static int	append_cmd(t_cmd **head, t_cmd **current, char *segment,
+		t_shell *shell)
 {
 	t_cmd	*node;
 
-	node = parse_single(segment);
+	node = parse_single(segment, shell);
 	if (!node)
 		return (-1);
 	if (!*head)
@@ -52,7 +53,7 @@ static int	append_cmd(t_cmd **head, t_cmd **current, char *segment)
 	return (0);
 }
 
-static int	build_cmd_list(char **pipeline, t_cmd **head)
+static int	build_cmd_list(char **pipeline, t_cmd **head, t_shell *shell)
 {
 	t_cmd	*current;
 	int		i;
@@ -61,7 +62,7 @@ static int	build_cmd_list(char **pipeline, t_cmd **head)
 	i = 0;
 	while (pipeline[i])
 	{
-		if (append_cmd(head, &current, pipeline[i]) == -1)
+		if (append_cmd(head, &current, pipeline[i], shell) == -1)
 		{
 			free_pipeline_rest(pipeline, i);
 			free_cmd_chain(*head);
@@ -74,19 +75,19 @@ static int	build_cmd_list(char **pipeline, t_cmd **head)
 	return (0);
 }
 
-t_cmd	*parse_command(char *input)
+t_cmd	*parse_command(char *input, t_shell *shell)
 {
 	char	**pipeline;
 	t_cmd	*head;
 
-	parser_set_status(0);
-	if (parser_validate_syntax(input) == -1)
+	parser_set_status(shell, 0);
+	if (parser_validate_syntax(input, shell) == -1)
 		return (NULL);
-	pipeline = split_pipes(input);
+	pipeline = split_pipes(input, shell);
 	if (!pipeline)
 		return (NULL);
 	head = NULL;
-	if (build_cmd_list(pipeline, &head) == -1)
+	if (build_cmd_list(pipeline, &head, shell) == -1)
 		return (NULL);
 	return (head);
 }

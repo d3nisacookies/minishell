@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-int	parser_validate_syntax(char *input)
+int	parser_validate_syntax(char *input, t_shell *shell)
 {
 	int		i;
 	char	quote;
@@ -28,6 +28,6 @@ int	parser_validate_syntax(char *input)
 		i++;
 	}
 	if (quote)
-		return (parser_put_unmatched_quote_error(), -1);
+		return (parser_put_unmatched_quote_error(shell), -1);
 	return (0);
 }

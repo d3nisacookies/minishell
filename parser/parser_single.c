@@ -21,7 +21,8 @@ static void	free_partial_cmd(t_cmd *cmd, int count)
 	free(cmd);
 }
 
-static int	handle_word(t_cmd *cmd, char *input, int *i, int *count)
+static int	handle_word(t_cmd *cmd, char *input, int *i, int *count,
+		t_shell *shell)
 {
 	int		was_quoted;
 	char	*word;
@@ -36,13 +37,13 @@ static int	handle_word(t_cmd *cmd, char *input, int *i, int *count)
 		(*count)++;
 		return (0);
 	}
-	if (parser_set_redirection(cmd, word, input, i) == -1)
+	if (parser_set_redirection(cmd, word, input, i, shell) == -1)
 		return (free(word), -1);
 	free(word);
 	return (0);
 }
 
-static int	fill_args(t_cmd *cmd, char *input)
+static int	fill_args(t_cmd *cmd, char *input, t_shell *shell)
 {
 	int		i;
 	int		count;
@@ -54,7 +55,7 @@ static int	fill_args(t_cmd *cmd, char *input)
 		parser_skip_spaces(input, &i);
 		if (!input[i])
 			break ;
-		if (handle_word(cmd, input, &i, &count) == -1)
+		if (handle_word(cmd, input, &i, &count, shell) == -1)
 			return (-1);
 	}
 	cmd->args[count] = NULL;
@@ -87,7 +88,7 @@ static t_cmd	*alloc_cmd(int argc)
 	return (cmd);
 }
 
-t_cmd	*parse_single(char *input)
+t_cmd	*parse_single(char *input, t_shell *shell)
 {
 	t_cmd	*cmd;
 	int		argc;
@@ -97,16 +98,16 @@ t_cmd	*parse_single(char *input)
 	argc = parser_count_args(input);
 	if (argc < 0)
 	{
-		parser_put_unmatched_quote_error();
+		parser_put_unmatched_quote_error(shell);
 		return (NULL);
 	}
 	cmd = alloc_cmd(argc);
 	if (!cmd)
 		return (NULL);
-	if (fill_args(cmd, input) == -1)
+	if (fill_args(cmd, input, shell) == -1)
 	{
 		free_partial_cmd(cmd, argc);
-		parser_put_unmatched_quote_error();
+		parser_put_unmatched_quote_error(shell);
 		return (NULL);
 	}
 	return (cmd);

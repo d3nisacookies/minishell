@@ -76,7 +76,8 @@ static int	sync_legacy_redirection(t_cmd *cmd, t_redir_type type, char *target)
 	return (0);
 }
 
-int	parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i)
+int	parser_set_redirection(t_cmd *cmd, char *op, char *input,
+		int *i, t_shell *shell)
 {
 	char			*file;
 	int				was_quoted;
@@ -85,7 +86,7 @@ int	parser_set_redirection(t_cmd *cmd, char *op, char *input, int *i)
 
 	parser_skip_spaces(input, i);
 	if (!input[*i])
-		return (parser_set_status(2), ft_putstr_fd(
+		return (parser_set_status(shell, 2), ft_putstr_fd(
 				"minishell: syntax error near unexpected token `newline'\n"
 				, 2), -1);
 	file = parser_extract_word(input, i, &was_quoted);
