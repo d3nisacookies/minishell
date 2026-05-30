@@ -20,10 +20,18 @@ SRC		=	main.c \
 			executor/executor.c \
 			executor/executor_pipe.c \
 			parser/parser.c \
+			parser/parser_count_args.c \
+			parser/parser_errors.c \
 			parser/parser_pipes.c \
+			parser/parser_redir_check.c \
 			parser/parser_redirections.c \
+			parser/parser_semicolon_count.c \
+			parser/parser_semicolons.c \
 			parser/parser_single.c \
+			parser/parser_split_free.c \
+			parser/parser_syntax.c \
 			parser/parser_utils.c \
+			parser/parser_word_utils.c \
 			parser/parser_words.c \
 			redirections/redirections.c
 

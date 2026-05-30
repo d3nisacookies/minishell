@@ -9,12 +9,31 @@ static void	free_partial_cmd(t_cmd *cmd, int count)
 	free(cmd);
 }
 
+static int	handle_word(t_cmd *cmd, char *input, int *i, int *count)
+{
+	int		was_quoted;
+	char	*word;
+
+	word = parser_extract_word(input, i, &was_quoted);
+	if (!word)
+		return (-1);
+	if (!parser_is_redirection(word))
+	{
+		cmd->args[*count] = word;
+		cmd->quoted[*count] = was_quoted;
+		(*count)++;
+		return (0);
+	}
+	if (parser_set_redirection(cmd, word, input, i) == -1)
+		return (free(word), -1);
+	free(word);
+	return (0);
+}
+
 static int	fill_args(t_cmd *cmd, char *input)
 {
 	int		i;
 	int		count;
-	int		was_quoted;
-	char	*word;
 
 	i = 0;
 	count = 0;
@@ -23,24 +42,8 @@ static int	fill_args(t_cmd *cmd, char *input)
 		parser_skip_spaces(input, &i);
 		if (!input[i])
 			break ;
-		word = parser_extract_word(input, &i, &was_quoted);
-		if (!word)
+		if (handle_word(cmd, input, &i, &count) == -1)
 			return (-1);
-		if (parser_is_redirection(word))
-		{
-			if (parser_set_redirection(cmd, word, input, &i) == -1)
-			{
-				free(word);
-				return (-1);
-			}
-			free(word);
-		}
-		else
-		{
-			cmd->args[count] = word;
-			cmd->quoted[count] = was_quoted;
-			count++;
-		}
 	}
 	cmd->args[count] = NULL;
 	cmd->argc = count;
@@ -57,17 +60,10 @@ static t_cmd	*alloc_cmd(int argc)
 		return (NULL);
 	cmd->args = malloc(sizeof(char *) * (argc + 1));
 	if (!cmd->args)
-	{
-		free(cmd);
-		return (NULL);
-	}
+		return (free(cmd), NULL);
 	cmd->quoted = malloc(sizeof(int) * (argc + 1));
 	if (!cmd->quoted)
-	{
-		free(cmd->args);
-		free(cmd);
-		return (NULL);
-	}
+		return (free(cmd->args), free(cmd), NULL);
 	cmd->infile = NULL;
 	cmd->outfile = NULL;
 	cmd->append = 0;
@@ -75,6 +71,7 @@ static t_cmd	*alloc_cmd(int argc)
 	cmd->heredoc = 0;
 	cmd->redirs = NULL;
 	cmd->heredoc_delim = NULL;
+	cmd->argc = 0;
 	return (cmd);
 }
 

@@ -1,114 +1,68 @@
 #include "minishell.h"
 
-static int	is_redir_char(char c)
-{
-	return (c == '>' || c == '<');
-}
-
-static int	skip_quoted(char *s, int i)
-{
-	char	quote;
-
-	quote = s[i++];
-	while (s[i] && s[i] != quote)
-		i++;
-	if (!s[i])
-		return (-1);
-	return (i + 1);
-}
-
-int	parser_count_args(char *s)
-{
-	int	i;
-	int	count;
-
-	i = 0;
-	count = 0;
-	while (s[i])
-	{
-		parser_skip_spaces(s, &i);
-		if (!s[i])
-			break ;
-		if (is_redir_char(s[i]))
-		{
-			count++;
-			if (s[i + 1] == s[i])
-				i += 2;
-			else
-				i++;
-			continue ;
-		}
-		count++;
-		while (s[i] && !parser_is_space(s[i]) && !is_redir_char(s[i]))
-		{
-			if (s[i] == '\'' || s[i] == '"')
-				i = skip_quoted(s, i);
-			else
-				i++;
-			if (i < 0)
-				return (-1);
-		}
-	}
-	return (count);
-}
-
 static int	get_word_len(char *s, int i)
 {
 	int	len;
 	int	next;
-
-	if (is_redir_char(s[i]))
-	{
-		if (s[i + 1] == s[i])
-			return (2);
-		return (1);
-	}
+	if (parser_is_redir_char(s[i]))
+		return (parser_get_redir_len(s, i));
 	len = 0;
-	while (s[i] && !parser_is_space(s[i]) && !is_redir_char(s[i]))
+	while (s[i] && !parser_is_space(s[i]) && !parser_is_redir_char(s[i]))
 	{
 		if (s[i] == '\'' || s[i] == '"')
 		{
-			next = skip_quoted(s, i);
+			next = parser_skip_quoted(s, i);
 			if (next < 0)
 				return (-1);
 			len += next - i - 2;
 			i = next;
 		}
-		else
-		{
-			len++;
+		else if (++len)
 			i++;
-		}
 	}
 	return (len);
+}
+
+static int	fill_redirection_word(char *s, int *i, char *word)
+{
+	int	j;
+
+	j = 0;
+	word[j++] = s[*i];
+	(*i)++;
+	if (s[*i] == word[0])
+		word[j++] = s[(*i)++];
+	word[j] = '\0';
+	return (0);
+}
+
+static int	copy_quoted_content(char *s, int *i, char *word, int *j)
+{
+	char	q;
+
+	q = s[(*i)++];
+	while (s[*i] && s[*i] != q)
+		word[(*j)++] = s[(*i)++];
+	if (!s[*i])
+		return (-1);
+	(*i)++;
+	return (q);
 }
 
 static int	fill_word(char *s, int *i, char *word, int *was_quoted)
 {
 	int		j;
-	char	c;
 
 	j = 0;
-	if (is_redir_char(s[*i]))
-	{
-		word[j++] = s[*i];
-		(*i)++;
-		if (s[*i] == word[0])
-			word[j++] = s[(*i)++];
-		word[j] = '\0';
-		return (0);
-	}
-	while (s[*i] && !parser_is_space(s[*i]) && !is_redir_char(s[*i]))
+	if (parser_is_redir_char(s[*i]))
+		return (fill_redirection_word(s, i, word));
+	while (s[*i] && !parser_is_space(s[*i]) && !parser_is_redir_char(s[*i]))
 	{
 		if (s[*i] == '\'' || s[*i] == '"')
 		{
-			c = s[(*i)++];
-			*was_quoted = c;
-			while (s[*i] && s[*i] != c)
-				word[j++] = s[(*i)++];
-			if (!s[*i])
+			*was_quoted = copy_quoted_content(s, i, word, &j);
+			if (*was_quoted == -1)
 				return (-1);
-			(*i)++;
 		}
 		else
 			word[j++] = s[(*i)++];
