@@ -1,9 +1,14 @@
-/*
-** EPITECH PROJECT, 2026
-** minishell
-** File description:
-** minishell header
-*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/30 18:11:01 by akaung            #+#    #+#             */
+/*   Updated: 2026/05/30 18:12:23 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
@@ -89,14 +94,16 @@ void							prompt_loop(t_shell *shell);
 t_cmd							*parse_command(char *input, t_shell *shell);
 t_cmd							*parse_single(char *input, t_shell *shell);
 char							**split_pipes(char *input, t_shell *shell);
-int								parser_validate_syntax(char *input, t_shell *shell);
+int								parser_validate_syntax(char *input,
+									t_shell *shell);
 int								parser_is_space(char c);
 int								parser_is_redir_char(char c);
 int								parser_skip_quoted(char *s, int i);
 int								parser_get_redir_len(char *s, int i);
 void							parser_skip_spaces(char *s, int *i);
 void							parser_free_split(char **split, int count);
-void							parser_put_unmatched_quote_error(t_shell *shell);
+void							parser_put_unmatched_quote_error(
+									t_shell *shell);
 void							parser_put_pipe_error(t_shell *shell);
 void							parser_set_status(t_shell *shell, int status);
 int								parser_get_status(t_shell *shell);

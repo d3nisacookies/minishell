@@ -33,7 +33,8 @@ SRC		=	main.c \
 			parser/parser_utils.c \
 			parser/parser_word_utils.c \
 			parser/parser_words.c \
-			redirections/redirections.c
+			redirections/redirections.c \
+			redirections/redirections_utils.c \
 
 OBJ		=	$(SRC:.c=.o)
 
