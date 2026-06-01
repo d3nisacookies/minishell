@@ -1,3 +1,8 @@
+This project has been created as part of the 42 curriculum by jculleto akaung
+
+
+# Description
+
 # minishell
 Making minimalist shell from the 42 cursus.
 
@@ -31,8 +36,6 @@ Is the syntax valid?
 ### concrete syntax tree
 
 A Concrete Syntax Tree is similar to an AST, but it represents the input much more literally. It keeps more of the original syntax, such as brackets, grammar rules, and extra intermediate nodes. This makes syntax validation easier because the tree closely follows the exact grammar of the language. However, because it keeps so much detail, it becomes more cluttered. That makes execution harder, because the executor has to move through many unnecessary layers before reaching the useful commands or operators.
-
-Linked list
 
 ### Linked list
 
@@ -299,3 +302,152 @@ echo hello > file1.txt
 ```
 
 Because `echo` is executed inside Minishell, the shell temporarily redirects its standard output to `file1.txt`. After `echo` finishes, Minishell must restore its original standard output. Otherwise, any later output from the shell would continue to be written into `file1.txt` instead of appearing in the terminal.
+
+# Instructions
+
+## Requirements
+
+Before compiling, make sure you have:
+
+- `gcc`
+- `make`
+- the `readline` library installed
+
+On Linux, if `readline` is missing, install the development package for your system.
+
+```bash
+sudo apt install libreadline-dev
+```
+
+## Compilation
+
+Build the project with:
+
+```bash
+make
+```
+
+This creates the executable:
+
+```bash
+./minishell
+```
+
+To remove object files:
+
+```bash
+make clean
+```
+
+To remove object files and the executable:
+
+```bash
+make fclean
+```
+
+To fully rebuild the project:
+
+```bash
+make re
+```
+
+## Running Minishell
+
+Start the shell with:
+
+```bash
+./minishell
+```
+
+You should see the minishell prompt:
+
+```text
+$>
+```
+
+From there, you can type commands like:
+
+```bash
+pwd
+echo hello
+ls -la
+```
+
+## Example Commands to Try
+
+Basic commands:
+
+```bash
+pwd
+echo hello world
+env
+```
+
+Builtins:
+
+```bash
+cd ..
+pwd
+export NAME=minishell
+echo $NAME
+unset NAME
+exit
+```
+
+Pipes:
+
+```bash
+ls -la | grep .c
+cat README.md | grep minishell
+```
+
+Redirections:
+
+```bash
+echo hello > file.txt
+cat < file.txt
+echo again >> file.txt
+cat file.txt
+```
+
+Quotes:
+
+```bash
+echo "hello world"
+echo 'hello world'
+echo "home is $HOME"
+```
+
+Exit status:
+
+```bash
+ls missing_file
+echo $?
+```
+
+## Exiting Minishell
+
+You can exit Minishell by running:
+
+```bash
+exit
+```
+
+You can also press `Ctrl-D` on an empty prompt.
+
+## Memory Check
+
+If you want to check for memory leaks, you can run:
+
+```bash
+valgrind --leak-check=full --show-leak-kinds=all --suppressions=valgrind_readline.supp ./minishell
+```
+
+The suppression file is used because `readline` can report reachable memory that does not come from Minishell itself.
+
+
+# Resources
+
+https://dev.to/balapriya/abstract-syntax-tree-ast-explained-in-plain-english-1h38
+https://mintlify.wiki/ibon-ira/Minishell/guide/redirections
+https://mintlify.wiki/ibon-ira/Minishell/reference/architecture
