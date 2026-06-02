@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   prompt_utils.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/02 12:44:59 by akaung            #+#    #+#             */
+/*   Updated: 2026/06/02 12:45:07 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 char	*trim_spaces(char *s)
@@ -46,4 +58,16 @@ int	starts_with_pipe(char *segment)
 	while (segment[start] && parser_is_space(segment[start]))
 		start++;
 	return (segment[start] == '|');
+}
+
+int	handle_parse_fail(t_shell *shell, char **segments)
+{
+	int	status;
+
+	status = parser_get_status(shell);
+	if (!status)
+		status = 1;
+	shell->last_exit = status;
+	free_split_array(segments);
+	return (-1);
 }

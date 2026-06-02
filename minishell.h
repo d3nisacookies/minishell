@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 18:11:01 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 18:12:23 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/02 12:36:32 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,7 @@ int								parser_skip_quoted(char *s, int i);
 int								parser_get_redir_len(char *s, int i);
 void							parser_skip_spaces(char *s, int *i);
 void							parser_free_split(char **split, int count);
-void							parser_put_unmatched_quote_error(
-									t_shell *shell);
+void							parser_put_unmatched_quote_error(t_shell *shell);
 void							parser_put_pipe_error(t_shell *shell);
 void							parser_set_status(t_shell *shell, int status);
 int								parser_get_status(t_shell *shell);
@@ -113,6 +112,8 @@ char							*parser_extract_word(char *s, int *i,
 int								parser_is_redirection(char *word);
 int								parser_set_redirection(t_cmd *cmd, char *op,
 									char *input, int *i, t_shell *shell);
+int								handle_parse_fail(t_shell *shell,
+									char **segments);
 
 /* ── Executor ── */
 void							execute_command(t_cmd *cmd, t_shell *shell);

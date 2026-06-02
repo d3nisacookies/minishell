@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   prompt.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/02 12:31:39 by akaung            #+#    #+#             */
+/*   Updated: 2026/06/02 12:37:05 by akaung           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static int	syntax_error_token(t_shell *shell, char *token)
@@ -43,6 +55,7 @@ static int	validate_segments(char **segments, t_shell *shell)
 {
 	int	idx;
 	int	ret;
+
 	idx = 0;
 	while (segments[idx])
 	{
@@ -60,9 +73,8 @@ static int	run_segments(char **segments, t_shell *shell)
 {
 	char	*segment;
 	t_cmd	*cmd;
+	int		idx;
 
-	int	idx;
-	int	status;
 	idx = 0;
 	while (segments[idx])
 	{
@@ -71,14 +83,7 @@ static int	run_segments(char **segments, t_shell *shell)
 			break ;
 		cmd = parse_command(segment, shell);
 		if (cmd == NULL)
-		{
-			status = parser_get_status(shell);
-			if (!status)
-				status = 1;
-			shell->last_exit = status;
-			free_split_array(segments);
-			return (-1);
-		}
+			return (handle_parse_fail(shell, segments));
 		execute_command(cmd, shell);
 		free_cmd_list(cmd);
 		if (shell->should_exit)
@@ -91,8 +96,8 @@ static int	run_segments(char **segments, t_shell *shell)
 static int	execute_input_segments(char *input, t_shell *shell)
 {
 	char	**segments;
+	int		status;
 
-	int	status;
 	segments = split_semicolons(input, shell);
 	if (!segments)
 	{
