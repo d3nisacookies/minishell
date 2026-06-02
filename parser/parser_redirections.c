@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:28:22 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 17:29:57 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/02 18:02:37 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ int	parser_set_redirection(t_cmd *cmd, char *input, int *i, t_shell *shell)
 	char			*file;
 	char			*op;
 	int				was_quoted;
-	t_redir			*new_redir;
 	t_redir_type	type;
 
 	op = parser_extract_word(input, i, NULL);
@@ -89,22 +88,11 @@ int	parser_set_redirection(t_cmd *cmd, char *input, int *i, t_shell *shell)
 		return (-1);
 	parser_skip_spaces(input, i);
 	if (!input[*i])
-		return (parser_set_status(shell, 2), ft_putstr_fd(
-				"minishell: syntax error near unexpected token `newline'\n"
-				, 2), free(op), -1);
+		return (parser_redirection_error(shell, op));
 	file = parser_extract_word(input, i, &was_quoted);
 	if (!file)
 		return (free(op), -1);
 	type = get_redir_type(op);
 	free(op);
-	new_redir = malloc(sizeof(t_redir));
-	if (!new_redir)
-		return (free(file), -1);
-	new_redir->type = type;
-	new_redir->target = file;
-	new_redir->next = NULL;
-	if (sync_legacy_redirection(cmd, type, file) == -1)
-		return (free(file), free(new_redir), -1);
-	append_redir(cmd, new_redir);
-	return (0);
+	return (parser_add_redirection(cmd, file, type));
 }
