@@ -21,52 +21,58 @@ static int	quote_state_changed(char *quote, char c)
 	return (0);
 }
 
-static int	append_segment(char **list, int *count, char *input, int *range)
+static int	append_segment(char **list, int list_index, char *segment)
 {
-	list[*count] = ft_substr(input, range[0], range[1] - range[0]);
-	if (!list[*count])
+	list[list_index] = segment;
+	if (!list[list_index])
 		return (-1);
-	(*count)++;
-	return (0);
+	return (list_index + 1);
 }
 
-static int	fill_loop(char **list, char *input, int *range, char *quote)
+static int	fill_loop(char **list, char *input, int *start, char *quote)
 {
 	int	i;
+	int	list_index;
 
 	i = 0;
+	list_index = 0;
 	while (input[i])
 	{
 		if (!quote_state_changed(quote, input[i]) && *quote == 0
 			&& input[i] == ';')
 		{
-			range[1] = i;
-			if (append_segment(list, &range[2], input, range) == -1)
+			list_index = append_segment(list, list_index,
+					ft_substr(input, *start, i - *start));
+			if (list_index == -1)
 				return (-1);
+			*start = i + 1;
 		}
-		if (*quote == 0 && input[i] == ';')
-			range[0] = i + 1;
 		i++;
 	}
-	range[1] = i;
-	return (0);
+	return (list_index);
 }
 
 static int	fill_segments(char **list, char *input, t_shell *shell)
 {
-	int		range[3];
+	int		start;
+	int		list_index;
 	char	quote;
 
-	range[0] = 0;
-	range[2] = 0;
+	start = 0;
 	quote = 0;
-	if (fill_loop(list, input, range, &quote) == -1)
+	list_index = fill_loop(list, input, &start, &quote);
+	if (list_index == -1)
 		return (-1);
 	if (quote != 0)
+	{
+		list[list_index] = NULL;
 		return (parser_put_unmatched_quote_error(shell), -1);
-	if (append_segment(list, &range[2], input, range) == -1)
+	}
+	list_index = append_segment(list, list_index,
+			ft_substr(input, start, ft_strlen(input) - start));
+	if (list_index == -1)
 		return (-1);
-	list[range[2]] = NULL;
+	list[list_index] = NULL;
 	return (0);
 }
 
