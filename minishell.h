@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 18:11:01 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/02 12:36:32 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/02 18:23:55 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ typedef struct s_pipe_exec
 
 /* ── Prompt ── */
 void							prompt_loop(t_shell *shell);
+int								syntax_error_token(t_shell *shell, char *token);
 
 /* ── Parser ── */
 t_cmd							*parse_command(char *input, t_shell *shell);
@@ -102,7 +103,8 @@ int								parser_skip_quoted(char *s, int i);
 int								parser_get_redir_len(char *s, int i);
 void							parser_skip_spaces(char *s, int *i);
 void							parser_free_split(char **split, int count);
-void							parser_put_unmatched_quote_error(t_shell *shell);
+void							parser_put_unmatched_quote_error(
+									t_shell *shell);
 void							parser_put_pipe_error(t_shell *shell);
 void							parser_set_status(t_shell *shell, int status);
 int								parser_get_status(t_shell *shell);
@@ -110,10 +112,13 @@ int								parser_count_args(char *s);
 char							*parser_extract_word(char *s, int *i,
 									int *was_quoted);
 int								parser_is_redirection(char *word);
-int								parser_set_redirection(t_cmd *cmd,
-									char *input, int *i, t_shell *shell);
+int								parser_set_redirection(t_cmd *cmd, char *input,
+									int *i, t_shell *shell);
 int								handle_parse_fail(t_shell *shell,
 									char **segments);
+int								parser_redirection_error(t_shell *shell,
+									char *op);
+t_redir_type					get_redir_type(char *op);
 
 /* ── Executor ── */
 void							execute_command(t_cmd *cmd, t_shell *shell);

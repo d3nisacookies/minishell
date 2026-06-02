@@ -6,22 +6,11 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:28:22 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/02 18:02:37 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/02 18:19:07 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-static t_redir_type	get_redir_type(char *op)
-{
-	if (ft_strcmp(op, "<") == 0)
-		return (R_IN);
-	if (ft_strcmp(op, "<<") == 0)
-		return (R_HEREDOC);
-	if (ft_strcmp(op, ">>") == 0)
-		return (R_APPEND);
-	return (R_OUT);
-}
 
 static void	append_redir(t_cmd *cmd, t_redir *new_redir)
 {
@@ -76,17 +65,7 @@ static int	sync_legacy_redirection(t_cmd *cmd, t_redir_type type, char *target)
 	return (0);
 }
 
-static int	parser_redirection_error(t_shell *shell, char *op)
-{
-	parser_set_status(shell, 2);
-	ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n"
-		, 2);
-	free(op);
-	return (-1);
-}
-
-static int	parser_add_redirection(t_cmd *cmd, char *file,
-		t_redir_type type)
+static int	parser_add_redirection(t_cmd *cmd, char *file, t_redir_type type)
 {
 	t_redir	*new_redir;
 

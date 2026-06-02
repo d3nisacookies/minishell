@@ -5,6 +5,7 @@ LDFLAGS	=	-lreadline
 SRC		=	main.c \
 			prompt.c \
 			prompt_utils.c \
+			prompt_error_token.c \
 			builtins/cd_pwd.c \
 			builtins/cd_utils.c \
 			builtins/echo.c \
