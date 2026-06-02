@@ -76,6 +76,32 @@ static int	sync_legacy_redirection(t_cmd *cmd, t_redir_type type, char *target)
 	return (0);
 }
 
+static int	parser_redirection_error(t_shell *shell, char *op)
+{
+	parser_set_status(shell, 2);
+	ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n"
+		, 2);
+	free(op);
+	return (-1);
+}
+
+static int	parser_add_redirection(t_cmd *cmd, char *file,
+		t_redir_type type)
+{
+	t_redir	*new_redir;
+
+	new_redir = malloc(sizeof(t_redir));
+	if (!new_redir)
+		return (free(file), -1);
+	new_redir->type = type;
+	new_redir->target = file;
+	new_redir->next = NULL;
+	if (sync_legacy_redirection(cmd, type, file) == -1)
+		return (free(file), free(new_redir), -1);
+	append_redir(cmd, new_redir);
+	return (0);
+}
+
 int	parser_set_redirection(t_cmd *cmd, char *input, int *i, t_shell *shell)
 {
 	char			*file;
