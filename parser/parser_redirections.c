@@ -85,10 +85,11 @@ int	parser_set_redirection(t_cmd *cmd, char *input, int *i, t_shell *shell)
 {
 	char			*file;
 	char			*op;
+	int				op_quoted;
 	int				was_quoted;
 	t_redir_type	type;
 
-	op = parser_extract_word(input, i, NULL);
+	op = parser_extract_word(input, i, &op_quoted);
 	if (!op)
 		return (-1);
 	parser_skip_spaces(input, i);
