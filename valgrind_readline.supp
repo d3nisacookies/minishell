@@ -193,3 +193,18 @@ fun:rl_initialize
 fun:readline
 ...
 }
+
+{
+   readline_reachable_setenv_screen_size
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   fun:*add_to_environ*
+   fun:setenv
+   ...
+   fun:_rl_get_screen_size
+   ...
+   fun:readline
+   ...
+}
