@@ -110,7 +110,7 @@ int								parser_count_args(char *s);
 char							*parser_extract_word(char *s, int *i,
 									int *was_quoted);
 int								parser_is_redirection(char *word);
-int								parser_set_redirection(t_cmd *cmd, char *op,
+int								parser_set_redirection(t_cmd *cmd,
 									char *input, int *i, t_shell *shell);
 int								handle_parse_fail(t_shell *shell,
 									char **segments);

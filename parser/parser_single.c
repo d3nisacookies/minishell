@@ -21,45 +21,40 @@ static void	free_partial_cmd(t_cmd *cmd, int count)
 	free(cmd);
 }
 
-static int	handle_word(t_cmd *cmd, char *input, int *i, int *count,
-		t_shell *shell)
+static int	handle_word(t_cmd *cmd, char *input, int *i, t_shell *shell)
 {
 	int		was_quoted;
 	char	*word;
 
+	if (input[*i] == '<' || input[*i] == '>')
+		return (parser_set_redirection(cmd, input, i, shell));
 	word = parser_extract_word(input, i, &was_quoted);
 	if (!word)
 		return (-1);
 	if (!parser_is_redirection(word))
 	{
-		cmd->args[*count] = word;
-		cmd->quoted[*count] = was_quoted;
-		(*count)++;
+		cmd->args[cmd->argc] = word;
+		cmd->quoted[cmd->argc] = was_quoted;
+		cmd->argc++;
 		return (0);
 	}
-	if (parser_set_redirection(cmd, word, input, i, shell) == -1)
-		return (free(word), -1);
-	free(word);
-	return (0);
+	return (free(word), -1);
 }
 
 static int	fill_args(t_cmd *cmd, char *input, t_shell *shell)
 {
 	int		i;
-	int		count;
 
 	i = 0;
-	count = 0;
 	while (input[i])
 	{
 		parser_skip_spaces(input, &i);
 		if (!input[i])
 			break ;
-		if (handle_word(cmd, input, &i, &count, shell) == -1)
+		if (handle_word(cmd, input, &i, shell) == -1)
 			return (-1);
 	}
-	cmd->args[count] = NULL;
-	cmd->argc = count;
+	cmd->args[cmd->argc] = NULL;
 	cmd->next = NULL;
 	return (0);
 }

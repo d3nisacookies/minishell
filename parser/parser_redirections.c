@@ -76,23 +76,27 @@ static int	sync_legacy_redirection(t_cmd *cmd, t_redir_type type, char *target)
 	return (0);
 }
 
-int	parser_set_redirection(t_cmd *cmd, char *op, char *input,
-		int *i, t_shell *shell)
+int	parser_set_redirection(t_cmd *cmd, char *input, int *i, t_shell *shell)
 {
 	char			*file;
+	char			*op;
 	int				was_quoted;
 	t_redir			*new_redir;
 	t_redir_type	type;
 
+	op = parser_extract_word(input, i, NULL);
+	if (!op)
+		return (-1);
 	parser_skip_spaces(input, i);
 	if (!input[*i])
 		return (parser_set_status(shell, 2), ft_putstr_fd(
 				"minishell: syntax error near unexpected token `newline'\n"
-				, 2), -1);
+				, 2), free(op), -1);
 	file = parser_extract_word(input, i, &was_quoted);
 	if (!file)
-		return (-1);
+		return (free(op), -1);
 	type = get_redir_type(op);
+	free(op);
 	new_redir = malloc(sizeof(t_redir));
 	if (!new_redir)
 		return (free(file), -1);
