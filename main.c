@@ -80,7 +80,7 @@ int	main(int ac, char **av, char **envp)
 	setup_signals();
 	prompt_loop(&shell);
 	status = shell.last_exit;
-	clear_history();
+	rl_clear_history();
 	free_env_copy(shell.env);
 	return (status);
 }

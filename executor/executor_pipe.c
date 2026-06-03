@@ -14,6 +14,50 @@
 
 extern char	**environ;
 
+static char	*join_command_path(char *dir, char *cmd)
+{
+	char	*tmp;
+
+	if (!dir || dir[0] == '\0')
+		return (ft_strdup(cmd));
+	tmp = ft_strjoin(dir, "/");
+	if (!tmp)
+		return (NULL);
+	cmd = ft_strjoin(tmp, cmd);
+	free(tmp);
+	return (cmd);
+}
+
+static char	*resolve_command_path(t_shell *shell, char *cmd_name)
+{
+	char	**paths;
+	char	*path_var;
+	char	*full_path;
+	int		index;
+
+	if (!cmd_name || !*cmd_name)
+		return (NULL);
+	if (ft_strchr(cmd_name, '/'))
+		return (ft_strdup(cmd_name));
+	path_var = get_env_value(shell, "PATH");
+	if (!path_var)
+		return (ft_strdup(cmd_name));
+	paths = ft_split(path_var, ':');
+	if (!paths)
+		return (NULL);
+	index = 0;
+	while (paths[index])
+	{
+		full_path = join_command_path(paths[index], cmd_name);
+		if (full_path && access(full_path, X_OK) == 0)
+			return (free_split_array(paths), full_path);
+		free(full_path);
+		index++;
+	}
+	free_split_array(paths);
+	return (ft_strdup(cmd_name));
+}
+
 static void	close_pipe_pair(int *pipefd, int has_next)
 {
 	if (has_next)
@@ -63,8 +107,16 @@ static void	exec_pipeline_child(t_pipe_exec *px, t_shell *shell, int *pipefd,
 		exit(1);
 	if (!px->cmd->args || !px->cmd->args[0])
 		exit(0);
-	environ = shell->env;
-	execvp(px->cmd->args[0], px->cmd->args);
+	{
+		char	*path;
+
+		path = resolve_command_path(shell, px->cmd->args[0]);
+		if (path)
+		{
+			execve(path, px->cmd->args, shell->env);
+			free(path);
+		}
+	}
 	executor_exit_exec_error(px->cmd->args[0]);
 }
 
