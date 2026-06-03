@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 18:11:01 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/02 18:23:55 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/04 01:02:12 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,10 @@ int								parser_is_redir_char(char c);
 int								parser_skip_quoted(char *s, int i);
 int								parser_get_redir_len(char *s, int i);
 void							parser_skip_spaces(char *s, int *i);
-void							parser_free_split(char **split, int count);
-void							parser_put_unmatched_quote_error(
-									t_shell *shell);
+void							parser_free_split(char **split,
+									int count);
+void							parser_put_unmatched_quote_error(t_shell	
+									*shell);
 void							parser_put_pipe_error(t_shell *shell);
 void							parser_set_status(t_shell *shell, int status);
 int								parser_get_status(t_shell *shell);
@@ -129,13 +130,13 @@ void							executor_exit_exec_error(char *cmd_name);
 void							restore_stdio(int saved_in, int saved_out);
 void							run_regular_builtin(t_cmd *cmd, t_shell *shell);
 char							*resolve_command_path(t_shell *shell,
-								char *cmd_name);
+									char *cmd_name);
 void							execute_pipeline_child(t_pipe_exec *px,
-								 t_shell *shell, int *pipefd, int has_next);
-void							wait_pipeline(pid_t *pids, int count, pid_t last_pid,
-								t_shell *shell);
-int							init_pipeline_exec(t_pipe_exec *px, t_cmd *cmd,
-								t_shell *shell);
+									t_shell *shell, int *pipefd, int has_next);
+void							wait_pipeline(pid_t *pids, int count,
+									pid_t last_pid, t_shell *shell);
+int								init_pipeline_exec(t_pipe_exec *px, t_cmd *cmd,
+									t_shell *shell);
 void							free_cmd(t_cmd *cmd);
 void							free_cmd_list(t_cmd *cmd);
 
