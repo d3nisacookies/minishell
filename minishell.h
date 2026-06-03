@@ -131,6 +131,8 @@ void							restore_stdio(int saved_in, int saved_out);
 void							run_regular_builtin(t_cmd *cmd, t_shell *shell);
 char							*resolve_command_path(t_shell *shell,
 									char *cmd_name);
+char							*resolve_path_from_env(t_shell *shell,
+									char *cmd_name);
 void							execute_pipeline_child(t_pipe_exec *px,
 									t_shell *shell, int *pipefd, int has_next);
 void							wait_pipeline(pid_t *pids, int count,

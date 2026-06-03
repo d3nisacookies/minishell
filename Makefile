@@ -20,6 +20,7 @@ SRC		=	main.c \
 			executor/executor_free.c \
 			executor/executor.c \
 			executor/executor_utils.c \
+			executor/executor_path.c \
 			executor/executor_pipe.c \
 			executor/executor_pipe_utils.c \
 			executor/executor_pipe_init.c \
