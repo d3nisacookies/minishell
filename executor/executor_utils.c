@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include <sys/stat.h>
 
 static char	*join_command_path(char *dir, char *cmd)
 {
@@ -38,6 +39,17 @@ static int	path_is_executable(char *dir, char *cmd_name, char **full_path)
 	return (0);
 }
 
+static int	is_nonexec_file(char *cmd_name)
+{
+	struct stat	st;
+
+	if (stat(cmd_name, &st) != 0)
+		return (0);
+	if (S_ISDIR(st.st_mode))
+		return (0);
+	return (access(cmd_name, X_OK) != 0);
+}
+
 char	*resolve_command_path(t_shell *shell, char *cmd_name)
 {
 	char	**paths;
@@ -63,7 +75,10 @@ char	*resolve_command_path(t_shell *shell, char *cmd_name)
 		index++;
 	}
 	free_split_array(paths);
-	return (ft_strdup(cmd_name));
+	if (is_nonexec_file(cmd_name))
+		return (ft_strdup(cmd_name));
+	errno = ENOENT;
+	return (NULL);
 }
 
 void	restore_stdio(int saved_in, int saved_out)

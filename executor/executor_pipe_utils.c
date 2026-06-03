@@ -71,8 +71,8 @@ void	execute_pipeline_child(t_pipe_exec *px, t_shell *shell, int *pipefd,
 {
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
+	setup_pipeline_child(px, pipefd, has_next);
 	if (apply_redirections(px->cmd) == -1)
 		exit(1);
-	setup_pipeline_child(px, pipefd, has_next);
 	run_pipeline_execve(px, shell);
 }
