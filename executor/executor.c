@@ -12,83 +12,6 @@
 
 #include "minishell.h"
 
-extern char	**environ;
-
-static char	*join_command_path(char *dir, char *cmd)
-{
-	char	*tmp;
-
-	if (!dir || dir[0] == '\0')
-		return (ft_strdup(cmd));
-	tmp = ft_strjoin(dir, "/");
-	if (!tmp)
-		return (NULL);
-	cmd = ft_strjoin(tmp, cmd);
-	free(tmp);
-	return (cmd);
-}
-
-static char	*resolve_command_path(t_shell *shell, char *cmd_name)
-{
-	char	**paths;
-	char	*path_var;
-	char	*full_path;
-	int		index;
-
-	if (!cmd_name || !*cmd_name)
-		return (NULL);
-	if (ft_strchr(cmd_name, '/'))
-		return (ft_strdup(cmd_name));
-	path_var = get_env_value(shell, "PATH");
-	if (!path_var)
-		return (ft_strdup(cmd_name));
-	paths = ft_split(path_var, ':');
-	if (!paths)
-		return (NULL);
-	index = 0;
-	while (paths[index])
-	{
-		full_path = join_command_path(paths[index], cmd_name);
-		if (full_path && access(full_path, X_OK) == 0)
-			return (free_split_array(paths), full_path);
-		free(full_path);
-		index++;
-	}
-	free_split_array(paths);
-	return (ft_strdup(cmd_name));
-}
-
-static void	restore_stdio(int saved_in, int saved_out)
-{
-	if (saved_in != -1)
-	{
-		dup2(saved_in, STDIN_FILENO);
-		close(saved_in);
-	}
-	if (saved_out != -1)
-	{
-		dup2(saved_out, STDOUT_FILENO);
-		close(saved_out);
-	}
-}
-
-static void	run_regular_builtin(t_cmd *cmd, t_shell *shell)
-{
-	if (ft_strcmp(cmd->args[0], "echo") == 0)
-	{
-		builtin_echo(shell, cmd);
-		shell->last_exit = 0;
-	}
-	else if (ft_strcmp(cmd->args[0], "cd") == 0)
-		shell->last_exit = builtin_cd(shell, cmd);
-	else if (ft_strcmp(cmd->args[0], "pwd") == 0)
-		shell->last_exit = builtin_pwd(shell);
-	else if (ft_strcmp(cmd->args[0], "export") == 0)
-		builtin_export(shell, cmd);
-	else
-		builtin_unset(shell, cmd);
-}
-
 static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 {
 	int	saved_in;
@@ -113,31 +36,33 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 	return (1);
 }
 
+static void	execute_external_child(t_cmd *cmd, t_shell *shell)
+{
+	char	*path;
+
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	if (apply_redirections(cmd) == -1)
+		exit(1);
+	path = resolve_command_path(shell, cmd->args[0]);
+	if (path)
+	{
+		execve(path, cmd->args, shell->env);
+		free(path);
+	}
+	executor_exit_exec_error(cmd->args[0]);
+}
+
 static void	execute_external(t_cmd *cmd, t_shell *shell)
 {
 	pid_t	pid;
 	int		status;
 
-	environ = shell->env;
 	pid = fork();
 	if (pid == -1)
 		return (perror("fork"), (void)(shell->last_exit = 1));
 	if (pid == 0)
-	{
-		char	*path;
-
-		signal(SIGINT, SIG_DFL);
-		signal(SIGQUIT, SIG_DFL);
-		if (apply_redirections(cmd) == -1)
-			exit(1);
-		path = resolve_command_path(shell, cmd->args[0]);
-		if (path)
-		{
-			execve(path, cmd->args, shell->env);
-			free(path);
-		}
-		executor_exit_exec_error(cmd->args[0]);
-	}
+		execute_external_child(cmd, shell);
 	waitpid(pid, &status, 0);
 	if (WIFEXITED(status))
 		shell->last_exit = WEXITSTATUS(status);
