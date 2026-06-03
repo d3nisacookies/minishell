@@ -26,6 +26,18 @@ static char	*join_command_path(char *dir, char *cmd)
 	return (cmd);
 }
 
+static int	path_is_executable(char *dir, char *cmd_name, char **full_path)
+{
+	*full_path = join_command_path(dir, cmd_name);
+	if (!*full_path)
+		return (0);
+	if (access(*full_path, X_OK) == 0)
+		return (1);
+	free(*full_path);
+	*full_path = NULL;
+	return (0);
+}
+
 char	*resolve_command_path(t_shell *shell, char *cmd_name)
 {
 	char	**paths;
@@ -46,10 +58,8 @@ char	*resolve_command_path(t_shell *shell, char *cmd_name)
 	index = 0;
 	while (paths[index])
 	{
-		full_path = join_command_path(paths[index], cmd_name);
-		if (full_path && access(full_path, X_OK) == 0)
+		if (path_is_executable(paths[index], cmd_name, &full_path))
 			return (free_split_array(paths), full_path);
-		free(full_path);
 		index++;
 	}
 	free_split_array(paths);
@@ -68,21 +78,4 @@ void	restore_stdio(int saved_in, int saved_out)
 		dup2(saved_out, STDOUT_FILENO);
 		close(saved_out);
 	}
-}
-
-void	run_regular_builtin(t_cmd *cmd, t_shell *shell)
-{
-	if (ft_strcmp(cmd->args[0], "echo") == 0)
-	{
-		builtin_echo(shell, cmd);
-		shell->last_exit = 0;
-	}
-	else if (ft_strcmp(cmd->args[0], "cd") == 0)
-		shell->last_exit = builtin_cd(shell, cmd);
-	else if (ft_strcmp(cmd->args[0], "pwd") == 0)
-		shell->last_exit = builtin_pwd(shell);
-	else if (ft_strcmp(cmd->args[0], "export") == 0)
-		builtin_export(shell, cmd);
-	else
-		builtin_unset(shell, cmd);
 }

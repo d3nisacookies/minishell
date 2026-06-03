@@ -12,6 +12,23 @@
 
 #include "minishell.h"
 
+void	run_regular_builtin(t_cmd *cmd, t_shell *shell)
+{
+	if (ft_strcmp(cmd->args[0], "echo") == 0)
+	{
+		builtin_echo(shell, cmd);
+		shell->last_exit = 0;
+	}
+	else if (ft_strcmp(cmd->args[0], "cd") == 0)
+		shell->last_exit = builtin_cd(shell, cmd);
+	else if (ft_strcmp(cmd->args[0], "pwd") == 0)
+		shell->last_exit = builtin_pwd(shell);
+	else if (ft_strcmp(cmd->args[0], "export") == 0)
+		builtin_export(shell, cmd);
+	else
+		builtin_unset(shell, cmd);
+}
+
 static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 {
 	int	saved_in;
