@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 12:31:39 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/02 18:21:55 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/05 11:34:33 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static int	check_segment(char **segs, int idx, t_shell *shell)
 	{
 		if (starts_with_pipe(segment))
 			return (syntax_error_token(shell, "|"));
-		if (segs[idx + 1] != NULL && ends_with_pipe(segment)) // echo hello |  ls -la  |;
+		if (segs[idx + 1] != NULL && ends_with_pipe(segment))
 			return (syntax_error_token(shell, ";"));
 		return (0);
 	}
