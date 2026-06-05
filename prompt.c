@@ -22,7 +22,7 @@ static int	check_segment(char **segs, int idx, t_shell *shell)
 	{
 		if (starts_with_pipe(segment))
 			return (syntax_error_token(shell, "|"));
-		if (segs[idx + 1] != NULL && ends_with_pipe(segment))
+		if (segs[idx + 1] != NULL && ends_with_pipe(segment)) // echo hello |  ls -la  |;
 			return (syntax_error_token(shell, ";"));
 		return (0);
 	}
