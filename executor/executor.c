@@ -46,8 +46,8 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 	if (saved_in == -1 || saved_out == -1)
 		return (perror("dup"), restore_stdio(saved_in, saved_out),
 			shell->last_exit = 1, 1);
-	if (apply_redirections(cmd) == -1)
-		return (restore_stdio(saved_in, saved_out), shell->last_exit = 1, 1);
+	if (apply_redirections(cmd, shell) == -1)
+		return (handle_builtin_redir_error(shell, saved_in, saved_out));
 	run_regular_builtin(cmd, shell);
 	restore_stdio(saved_in, saved_out);
 	return (1);
@@ -59,8 +59,12 @@ static void	execute_external_child(t_cmd *cmd, t_shell *shell)
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	if (apply_redirections(cmd) == -1)
+	if (apply_redirections(cmd, shell) == -1)
+	{
+		if (g_signal == SIGINT)
+			exit(130);
 		exit(1);
+	}
 	path = resolve_command_path(shell, cmd->args[0]);
 	if (path)
 	{

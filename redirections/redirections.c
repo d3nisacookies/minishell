@@ -51,7 +51,7 @@ int	redirect_output_append(char *path)
 	return (0);
 }
 
-static int	apply_single_redir(t_redir *redir)
+static int	apply_single_redir(t_redir *redir, t_shell *shell)
 {
 	if (redir->type == R_IN)
 		return (redirect_input_file(redir->target));
@@ -60,18 +60,18 @@ static int	apply_single_redir(t_redir *redir)
 	if (redir->type == R_APPEND)
 		return (redirect_output_append(redir->target));
 	if (redir->type == R_HEREDOC)
-		return (redirect_heredoc(redir->target));
+		return (redirect_heredoc(redir->target, shell, redir->quoted));
 	return (0);
 }
 
-int	apply_redirections(t_cmd *cmd)
+int	apply_redirections(t_cmd *cmd, t_shell *shell)
 {
 	t_redir	*current;
 
 	current = cmd->redirs;
 	while (current)
 	{
-		if (apply_single_redir(current) == -1)
+		if (apply_single_redir(current, shell) == -1)
 			return (-1);
 		current = current->next;
 	}

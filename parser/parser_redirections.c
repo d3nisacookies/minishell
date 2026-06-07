@@ -65,7 +65,8 @@ static int	sync_legacy_redirection(t_cmd *cmd, t_redir_type type, char *target)
 	return (0);
 }
 
-static int	parser_add_redirection(t_cmd *cmd, char *file, t_redir_type type)
+static int	parser_add_redirection(t_cmd *cmd, char *file, t_redir_type type,
+		int quoted)
 {
 	t_redir	*new_redir;
 
@@ -74,6 +75,7 @@ static int	parser_add_redirection(t_cmd *cmd, char *file, t_redir_type type)
 		return (free(file), -1);
 	new_redir->type = type;
 	new_redir->target = file;
+	new_redir->quoted = quoted;
 	new_redir->next = NULL;
 	if (sync_legacy_redirection(cmd, type, file) == -1)
 		return (free(file), free(new_redir), -1);
@@ -100,5 +102,5 @@ int	parser_set_redirection(t_cmd *cmd, char *input, int *i, t_shell *shell)
 		return (free(op), -1);
 	type = get_redir_type(op);
 	free(op);
-	return (parser_add_redirection(cmd, file, type));
+	return (parser_add_redirection(cmd, file, type, was_quoted));
 }

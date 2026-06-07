@@ -45,6 +45,7 @@ typedef struct s_redir
 {
 	t_redir_type				type;
 	char						*target;
+	int							quoted;
 	struct s_redir				*next;
 }								t_redir;
 
@@ -128,6 +129,8 @@ int								executor_expand_args(t_cmd *cmd,
 									t_shell *shell);
 void							executor_exit_exec_error(char *cmd_name);
 void							restore_stdio(int saved_in, int saved_out);
+int								handle_builtin_redir_error(t_shell *shell,
+									int saved_in, int saved_out);
 void							run_regular_builtin(t_cmd *cmd, t_shell *shell);
 char							*resolve_command_path(t_shell *shell,
 									char *cmd_name);
@@ -143,11 +146,12 @@ void							free_cmd(t_cmd *cmd);
 void							free_cmd_list(t_cmd *cmd);
 
 /* ── Redirections ── */
-int								apply_redirections(t_cmd *cmd);
+int								apply_redirections(t_cmd *cmd, t_shell *shell);
 int								redirect_input_file(char *path);
 int								redirect_output_append(char *path);
 int								redirect_output_truncate(char *path);
-int								redirect_heredoc(char *delimiter);
+int								redirect_heredoc(char *delimiter,
+									t_shell *shell, int quoted);
 
 /* ── Env ── */
 char							**copy_env(char **envp);
@@ -163,6 +167,8 @@ void							remove_env_index(t_shell *shell, int index);
 void							copy_env_skip(char **new_env, char **old_env,
 									int len, int skip);
 char							*get_env_value(t_shell *shell, char *key);
+char							*expand_argument(t_shell *shell, char *arg,
+									int quote);
 
 /* ── Builtins ── */
 void							builtin_export(t_shell *shell, t_cmd *cmd);

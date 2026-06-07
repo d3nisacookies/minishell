@@ -12,13 +12,13 @@
 
 #include "minishell.h"
 
-static void	free_partial_cmd(t_cmd *cmd, int count)
+static void	free_partial_cmd(t_cmd *cmd)
 {
-	while (count > 0)
-		free(cmd->args[--count]);
-	free(cmd->args);
-	free(cmd->quoted);
-	free(cmd);
+	if (!cmd)
+		return ;
+	if (cmd->args)
+		cmd->args[cmd->argc] = NULL;
+	free_cmd(cmd);
 }
 
 static int	handle_word(t_cmd *cmd, char *input, int *i, t_shell *shell)
@@ -101,7 +101,7 @@ t_cmd	*parse_single(char *input, t_shell *shell)
 		return (NULL);
 	if (fill_args(cmd, input, shell) == -1)
 	{
-		free_partial_cmd(cmd, argc);
+		free_partial_cmd(cmd);
 		parser_put_unmatched_quote_error(shell);
 		return (NULL);
 	}

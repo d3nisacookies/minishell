@@ -38,6 +38,14 @@ char	*resolve_command_path(t_shell *shell, char *cmd_name)
 	return (NULL);
 }
 
+int	handle_builtin_redir_error(t_shell *shell, int saved_in, int saved_out)
+{
+	restore_stdio(saved_in, saved_out);
+	if (g_signal != SIGINT)
+		shell->last_exit = 1;
+	return (1);
+}
+
 void	restore_stdio(int saved_in, int saved_out)
 {
 	if (saved_in != -1)

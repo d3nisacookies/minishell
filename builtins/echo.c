@@ -12,83 +12,43 @@
 
 #include "minishell.h"
 
-static int	expand_variable(t_shell *shell, char *arg, int i)
-{
-	char	*key;
-	char	*value;
-	int		start;
-
-	start = i + 1;
-	i = start;
-	while (arg[i] && is_var_char(arg[i]))
-		i++;
-	key = ft_substr(arg, start, i - start);
-	if (!key)
-		return (i);
-	value = get_env_value(shell, key);
-	if (value)
-		ft_printf("%s", value);
-	free(key);
-	return (i);
-}
-
-static int	print_expansion(t_shell *shell, char *arg, int i)
-{
-	if (arg[i + 1] == '?')
-	{
-		ft_printf("%d", shell->last_exit);
-		return (i + 2);
-	}
-	if (!is_var_start(arg[i + 1]))
-	{
-		ft_printf("$");
-		return (i + 1);
-	}
-	return (expand_variable(shell, arg, i));
-}
-
-static void	print_echo_arg(t_shell *shell, char *arg, int quote)
+static int	is_n_option(char *arg)
 {
 	int	i;
 
-	if (!arg)
-		return ;
-	if (quote == '\'')
+	if (!arg || arg[0] != '-' || arg[1] != 'n')
+		return (0);
+	i = 1;
+	while (arg[i] == 'n')
+		i++;
+	return (arg[i] == '\0');
+}
+
+static void	print_echo_args(t_cmd *cmd, int start)
+{
+	int	i;
+
+	i = start;
+	while (i < cmd->argc)
 	{
-		ft_printf("%s", arg);
-		return ;
-	}
-	i = 0;
-	while (arg[i])
-	{
-		if (arg[i] == '$')
-			i = print_expansion(shell, arg, i);
-		else
-		{
-			ft_printf("%c", arg[i]);
-			i++;
-		}
+		ft_printf("%s", cmd->args[i]);
+		if (i + 1 < cmd->argc)
+			ft_printf(" ");
+		i++;
 	}
 }
 
 void	builtin_echo(t_shell *shell, t_cmd *cmd)
 {
 	int	i;
-	int	is_n;
 
-	is_n = 0;
-	if (cmd->args[1] && ft_strcmp(cmd->args[1], "-n") == 0)
-		is_n = 1;
-	if (!shell || !cmd || !cmd->args)
+	(void)shell;
+	if (!cmd || !cmd->args)
 		return ;
 	i = 1;
-	while (i < cmd->argc)
-	{
-		print_echo_arg(shell, cmd->args[i], cmd->quoted[i]);
-		if (i + 1 < cmd->argc)
-			ft_printf(" ");
+	while (i < cmd->argc && is_n_option(cmd->args[i]))
 		i++;
-	}
-	if (is_n == 0)
+	print_echo_args(cmd, i);
+	if (i == 1)
 		ft_printf("\n");
 }
