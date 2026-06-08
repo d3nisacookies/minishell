@@ -37,16 +37,30 @@ static void	print_export_error(char *arg)
 	ft_putstr_fd("': not a valid identifier\n", 2);
 }
 
+static void	print_export_value(char *entry, char *equals)
+{
+	write(1, "declare -x ", 11);
+	write(1, entry, equals - entry);
+	write(1, "=\"", 2);
+	ft_printf("%s", equals + 1);
+	write(1, "\"\n", 2);
+}
+
 static void	print_export(char **env)
 {
-	int	i;
+	char	*equals;
+	int		i;
 
 	if (!env)
 		return ;
 	i = 0;
 	while (env[i])
 	{
-		ft_printf("declare -x %s\n", env[i]);
+		equals = ft_strchr(env[i], '=');
+		if (!equals)
+			ft_printf("declare -x %s\n", env[i]);
+		else
+			print_export_value(env[i], equals);
 		i++;
 	}
 }

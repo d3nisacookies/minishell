@@ -1,5 +1,5 @@
 CC		=	gcc
-CFLAGS	=	-Wall -Wextra -Werror -I. -Iprintf -Iprintf/libft
+CFLAGS	=	-Wall -Wextra -Werror -MMD -MP -I. -Iprintf -Iprintf/libft
 LDFLAGS	=	-lreadline
 
 SRC		=	main.c \
@@ -42,9 +42,11 @@ SRC		=	main.c \
 			parser/parser_word_utils.c \
 			parser/parser_words.c \
 			redirections/redirections.c \
+			redirections/redirections_io.c \
 			redirections/redirections_util.c \
 
 OBJ		=	$(SRC:.c=.o)
+DEP		=	$(OBJ:.o=.d)
 
 NAME		=	minishell
 FT_PRINTF	=	printf/libftprintf.a
@@ -61,8 +63,9 @@ $(NAME):	$(FT_PRINTF) $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(DEP)
 	find . -type f -name "*.o" -not -path "./printf/*" -delete
+	find . -type f -name "*.d" -not -path "./printf/*" -delete
 	$(MAKE) -C printf clean
 
 fclean:	clean
@@ -70,5 +73,7 @@ fclean:	clean
 	$(MAKE) -C printf fclean
 
 re:	fclean all
+
+-include $(DEP)
 
 .PHONY:	all clean fclean re

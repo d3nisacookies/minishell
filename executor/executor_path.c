@@ -47,7 +47,7 @@ char	*resolve_path_from_env(t_shell *shell, char *cmd_name)
 
 	path_var = get_env_value(shell, "PATH");
 	if (!path_var)
-		return (ft_strdup(cmd_name));
+		return (errno = ENOENT, NULL);
 	paths = ft_split(path_var, ':');
 	if (!paths)
 		return (NULL);

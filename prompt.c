@@ -115,13 +115,13 @@ void	prompt_loop(t_shell *shell)
 	while (1)
 	{
 		input = readline("$> ");
-		if (input == NULL)
-		{
+		if (g_signal == SIGINT)
 			shell->last_exit = 130;
-			write(1, "\n", 1);
-			break ;
-		}
-		if (strlen(input) == 0)
+		if (g_signal == SIGINT)
+			g_signal = 0;
+		if (input == NULL)
+			return ((void)(shell->last_exit = 130), (void)write(1, "\n", 1));
+		if (input[0] == '\0')
 		{
 			free(input);
 			continue ;

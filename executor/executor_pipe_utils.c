@@ -29,6 +29,19 @@ static void	run_pipeline_execve(t_pipe_exec *px, t_shell *shell)
 
 	if (!px->cmd->args || !px->cmd->args[0])
 		exit(0);
+	if (ft_strcmp(px->cmd->args[0], "exit") == 0)
+	{
+		builtin_exit(shell, px->cmd);
+		exit(shell->last_exit);
+	}
+	if (ft_strcmp(px->cmd->args[0], "echo") == 0 || ft_strcmp(px->cmd->args[0],
+			"cd") == 0 || ft_strcmp(px->cmd->args[0], "pwd") == 0
+		|| ft_strcmp(px->cmd->args[0], "export") == 0
+		|| ft_strcmp(px->cmd->args[0], "unset") == 0)
+	{
+		run_regular_builtin(px->cmd, shell);
+		exit(shell->last_exit);
+	}
 	path = resolve_command_path(shell, px->cmd->args[0]);
 	if (path)
 	{
