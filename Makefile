@@ -1,5 +1,5 @@
 CC		=	gcc
-CFLAGS	=	-Wall -Wextra -Werror -MMD -MP -I. -Iprintf -Iprintf/libft
+CFLAGS	=	-Wall -Wextra -Werror -I. -Iprintf -Iprintf/libft
 LDFLAGS	=	-lreadline
 
 SRC		=	main.c \
@@ -46,7 +46,6 @@ SRC		=	main.c \
 			redirections/redirections_util.c \
 
 OBJ		=	$(SRC:.c=.o)
-DEP		=	$(OBJ:.o=.d)
 
 NAME		=	minishell
 FT_PRINTF	=	printf/libftprintf.a
@@ -59,13 +58,14 @@ $(FT_PRINTF):
 $(NAME):	$(FT_PRINTF) $(OBJ)
 	$(CC) -o $(NAME) $(OBJ) $(FT_PRINTF) $(LDFLAGS)
 
+$(OBJ):	minishell.h
+
 %.o:	%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) $(DEP)
+	rm -f $(OBJ)
 	find . -type f -name "*.o" -not -path "./printf/*" -delete
-	find . -type f -name "*.d" -not -path "./printf/*" -delete
 	$(MAKE) -C printf clean
 
 fclean:	clean
@@ -73,7 +73,5 @@ fclean:	clean
 	$(MAKE) -C printf fclean
 
 re:	fclean all
-
--include $(DEP)
 
 .PHONY:	all clean fclean re
