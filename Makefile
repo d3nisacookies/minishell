@@ -3,6 +3,7 @@ CFLAGS	=	-Wall -Wextra -Werror -I. -Iprintf -Iprintf/libft
 LDFLAGS	=	-lreadline
 
 SRC		=	main.c \
+			signals.c \
 			prompt.c \
 			prompt_utils.c \
 			prompt_error_token.c \

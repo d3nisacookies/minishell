@@ -27,8 +27,6 @@ static void	run_pipeline_execve(t_pipe_exec *px, t_shell *shell)
 {
 	char	*path;
 
-	if (!px->cmd->args || !px->cmd->args[0])
-		exit(0);
 	if (ft_strcmp(px->cmd->args[0], "exit") == 0)
 	{
 		builtin_exit(shell, px->cmd);
@@ -91,5 +89,7 @@ void	execute_pipeline_child(t_pipe_exec *px, t_shell *shell, int *pipefd,
 			exit(130);
 		exit(1);
 	}
+	if (!px->cmd->args || !px->cmd->args[0])
+		exit(0);
 	run_pipeline_execve(px, shell);
 }

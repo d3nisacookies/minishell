@@ -29,6 +29,23 @@ void	run_regular_builtin(t_cmd *cmd, t_shell *shell)
 		builtin_unset(shell, cmd);
 }
 
+static int	execute_redirections_only(t_cmd *cmd, t_shell *shell)
+{
+	int	saved_in;
+	int	saved_out;
+
+	saved_in = dup(STDIN_FILENO);
+	saved_out = dup(STDOUT_FILENO);
+	if (saved_in == -1 || saved_out == -1)
+		return (perror("dup"), restore_stdio(saved_in, saved_out),
+			shell->last_exit = 1, 1);
+	if (apply_redirections(cmd, shell) == -1)
+		return (handle_builtin_redir_error(shell, saved_in, saved_out));
+	restore_stdio(saved_in, saved_out);
+	shell->last_exit = 0;
+	return (1);
+}
+
 static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 {
 	int	saved_in;
@@ -76,15 +93,23 @@ static void	execute_external_child(t_cmd *cmd, t_shell *shell)
 
 static void	execute_external(t_cmd *cmd, t_shell *shell)
 {
-	pid_t	pid;
-	int		status;
+	pid_t				pid;
+	int					status;
+	struct sigaction	old_int;
+	struct sigaction	old_quit;
 
+	if (ignore_shell_signals(&old_int, &old_quit) == -1)
+		return ((void)(shell->last_exit = 1));
 	pid = fork();
 	if (pid == -1)
+	{
+		restore_shell_signals(&old_int, &old_quit);
 		return (perror("fork"), (void)(shell->last_exit = 1));
+	}
 	if (pid == 0)
 		execute_external_child(cmd, shell);
 	waitpid(pid, &status, 0);
+	restore_shell_signals(&old_int, &old_quit);
 	if (WIFEXITED(status))
 		shell->last_exit = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
@@ -98,7 +123,10 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	if (executor_expand_args(cmd, shell) == -1)
 		return ((void)(shell->last_exit = 1));
 	if (!cmd->args[0])
-		return ((void)(shell->last_exit = 0));
+	{
+		execute_redirections_only(cmd, shell);
+		return ;
+	}
 	if (cmd->next)
 		return (execute_pipeline(cmd, shell));
 	if (execute_builtin(cmd, shell))

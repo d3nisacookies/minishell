@@ -83,6 +83,7 @@ Minishell currently supports:
   - Input redirection: `<`
   - Output redirection: `>`
   - Append redirection: `>>`
+   - Heredoc redirection: `<<`
 - Basic quote handling for single and double quotes.
 - Signal behaviour for `Ctrl-C` and `Ctrl-\`.
 - End-of-file handling through `Ctrl-D`.
@@ -177,7 +178,7 @@ args = ["grep", "hello world", NULL]
 output = result.txt
 ```
 
-Quotes keep words together, so `"hello world"` is treated as one argument. Redirections like `<`, `>` and `>>` are stored in the command structure, not passed as normal arguments.
+Quotes keep words together, so `"hello world"` is treated as one argument. Redirections like `<`, `>`, `>>`, and `<<` are stored in the command structure, not passed as normal arguments.
 
 At this stage, Minishell only records the redirection. Files are opened later during execution.
 
@@ -197,7 +198,17 @@ Execution starts after parsing is complete.
 
 For a standalone builtin, Minishell runs the builtin directly. If it has redirections, Minishell saves the original input/output, applies the redirection, runs the builtin, then restores the original input/output.
 
-For an external command, Minishell creates a child process with `fork()`. The child applies redirections and then runs the program using `execvp()`.
+If a command contains only redirections, Minishell still executes the redirection list. This matters for cases like:
+
+```bash
+<<EOF
+hello
+EOF
+```
+
+In that case the shell must enter heredoc mode and show the `> ` prompt even though there is no command name.
+
+For an external command, Minishell creates a child process with `fork()`. The child applies redirections and then runs the program using `execve()`.
 
 For a pipeline, Minishell creates pipes, forks one child per command, connects them with `dup2()`, then waits for them to finish.
 
@@ -209,12 +220,15 @@ Pipes and redirections change where a command reads from and writes to.
 <   reads input from a file
 >   writes output to a file, replacing old content
 >>  writes output to a file, adding to the end
+<<  reads lines until a delimiter and feeds them through stdin
 |   sends one command's output into the next command
 ```
 
 Minishell uses `open()` for files, `pipe()` for pipes, and `dup2()` to connect standard input and output to the correct place.
 
 Unused file descriptors must be closed, otherwise commands may hang while waiting for input.
+
+Heredoc input is collected before the command runs. `Ctrl-C` during heredoc stops collection and returns to the shell with status `130`.
 
 ### 8. Updating `$?`
 
@@ -231,6 +245,8 @@ echo $?
 prints the value stored in `shell->last_exit`.
 
 For pipelines, the final exit status usually comes from the last command in the pipeline. For syntax errors, Minishell should set the status to `2`. For signals, it usually stores `128 + signal number`, such as `130` for `Ctrl-C`.
+
+When the shell is waiting for an external command or a pipeline, the parent temporarily ignores `SIGINT` and `SIGQUIT`. That prevents nested `./minishell` sessions from redrawing multiple `$> ` prompts when you press `Ctrl-C`.
 
 ### Why We Have Builtins and External Commands
 

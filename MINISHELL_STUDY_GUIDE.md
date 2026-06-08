@@ -38,7 +38,7 @@ flowchart TD
 
 ## 3) Your Project Structure (Mental Map)
 
-- `main.c`: startup, environment copy, signal setup, loop entry.
+- `main.c`, `signals.c`: startup, environment copy, signal setup, loop entry.
 - `prompt.c`, `prompt_utils.c`: readline loop, splitting command sequences.
 - `parser/`: tokenization, syntax checks, redirections, command list construction.
 - `executor/`: expansion, builtin/external execution, pipeline orchestration, error mapping.
@@ -102,6 +102,7 @@ If expansion yields empty tokens, argument rebuilding must still remain valid an
 
 ### Single command
 - If builtin that must affect shell state (`cd`, `export`, `unset`, `exit`), run in parent process.
+- If the command has no argv left but still has redirections, apply the redirections anyway so standalone `<<EOF` or `>file` behaves like a real shell command.
 - Other commands can run via child + `execve`.
 
 ### Pipeline
@@ -144,6 +145,7 @@ Key distinction:
 Interactive shell:
 - `Ctrl-C` should interrupt current line and show a fresh prompt.
 - `Ctrl-\` should usually be ignored in prompt mode.
+- While the parent is waiting on an external command or pipeline, it should ignore `SIGINT`/`SIGQUIT` so nested shells do not print duplicate prompts.
 
 Child process mode:
 - reset signals to default before `execve`.

@@ -50,12 +50,19 @@ static int	run_pipeline_step(t_pipe_exec *px, t_shell *shell)
 
 void	execute_pipeline(t_cmd *cmd, t_shell *shell)
 {
-	t_pipe_exec	px;
+	t_pipe_exec			px;
+	struct sigaction	old_int;
+	struct sigaction	old_quit;
 
 	if (!cmd)
 		return ;
+	if (ignore_shell_signals(&old_int, &old_quit) == -1)
+		return ((void)(shell->last_exit = 1));
 	if (init_pipeline_exec(&px, cmd, shell) == -1)
+	{
+		restore_shell_signals(&old_int, &old_quit);
 		return ;
+	}
 	while (px.cmd && run_pipeline_step(&px, shell) == 0)
 		px.cmd = px.cmd->next;
 	if (px.fd_in != -1)
@@ -63,4 +70,5 @@ void	execute_pipeline(t_cmd *cmd, t_shell *shell)
 	if (px.idx > 0)
 		wait_pipeline(px.pids, px.idx, px.last_pid, shell);
 	free(px.pids);
+	restore_shell_signals(&old_int, &old_quit);
 }

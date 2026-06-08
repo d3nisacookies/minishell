@@ -174,6 +174,11 @@ char							*expand_argument(t_shell *shell, char *arg,
 int								init_shell_state(t_shell *shell, char **envp);
 void							init_shlvl(t_shell *shell);
 void							free_shell_state(t_shell *shell);
+int								setup_shell_signals(void);
+int								ignore_shell_signals(struct sigaction *old_int,
+									struct sigaction *old_quit);
+int								restore_shell_signals(struct sigaction *old_int,
+									struct sigaction *old_quit);
 
 /* ── Builtins ── */
 void							builtin_export(t_shell *shell, t_cmd *cmd);
