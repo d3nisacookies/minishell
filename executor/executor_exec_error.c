@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:13:36 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 17:13:37 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:11:50 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,22 @@ void	executor_exit_exec_error(char *cmd_name)
 	}
 	perror(cmd_name);
 	exit(1);
+}
+
+void	execute_command(t_cmd *cmd, t_shell *shell)
+{
+	if (!cmd || !cmd->args)
+		return ;
+	if (executor_expand_args(cmd, shell) == -1)
+		return ((void)(shell->last_exit = 1));
+	if (!cmd->args[0])
+	{
+		execute_redirections_only(cmd, shell);
+		return ;
+	}
+	if (cmd->next)
+		return (execute_pipeline(cmd, shell));
+	if (execute_builtin(cmd, shell))
+		return ;
+	execute_external(cmd, shell);
 }

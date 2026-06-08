@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 18:11:01 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/09 07:03:08 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:11:11 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ char							*resolve_command_path(t_shell *shell,
 									char *cmd_name);
 char							*resolve_path_from_env(t_shell *shell,
 									char *cmd_name);
-int							executor_execve_with_fallback(char *path,
+int								executor_execve_with_fallback(char *path,
 									char **args, char **env);
 void							execute_pipeline_child(t_pipe_exec *px,
 									t_shell *shell, int *pipefd, int has_next);
