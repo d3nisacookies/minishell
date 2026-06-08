@@ -13,16 +13,6 @@
 #include "minishell.h"
 #include <sys/stat.h>
 
-// static int	is_nonexec_file(char *cmd_name)
-// {
-// 	struct stat	st;
-
-// 	if (stat(cmd_name, &st) != 0)
-// 		return (0);
-// 	if (S_ISDIR(st.st_mode))
-// 		return (0);
-// 	return (access(cmd_name, X_OK) != 0);
-// }
 
 char	*resolve_command_path(t_shell *shell, char *cmd_name)
 {
