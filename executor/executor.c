@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:13:59 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 17:14:00 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 06:58:19 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	run_regular_builtin(t_cmd *cmd, t_shell *shell)
 		builtin_unset(shell, cmd);
 }
 
-static int	execute_redirections_only(t_cmd *cmd, t_shell *shell)
+int	execute_redirections_only(t_cmd *cmd, t_shell *shell)
 {
 	int	saved_in;
 	int	saved_out;
@@ -46,7 +46,7 @@ static int	execute_redirections_only(t_cmd *cmd, t_shell *shell)
 	return (1);
 }
 
-static int	execute_builtin(t_cmd *cmd, t_shell *shell)
+int	execute_builtin(t_cmd *cmd, t_shell *shell)
 {
 	int	saved_in;
 	int	saved_out;
@@ -70,7 +70,7 @@ static int	execute_builtin(t_cmd *cmd, t_shell *shell)
 	return (1);
 }
 
-static void	execute_external_child(t_cmd *cmd, t_shell *shell)
+void	execute_external_child(t_cmd *cmd, t_shell *shell)
 {
 	char	*path;
 
@@ -91,7 +91,7 @@ static void	execute_external_child(t_cmd *cmd, t_shell *shell)
 	executor_exit_exec_error(cmd->args[0]);
 }
 
-static void	execute_external(t_cmd *cmd, t_shell *shell)
+void	execute_external(t_cmd *cmd, t_shell *shell)
 {
 	pid_t				pid;
 	int					status;
@@ -114,22 +114,4 @@ static void	execute_external(t_cmd *cmd, t_shell *shell)
 		shell->last_exit = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
 		shell->last_exit = 128 + WTERMSIG(status);
-}
-
-void	execute_command(t_cmd *cmd, t_shell *shell)
-{
-	if (!cmd || !cmd->args)
-		return ;
-	if (executor_expand_args(cmd, shell) == -1)
-		return ((void)(shell->last_exit = 1));
-	if (!cmd->args[0])
-	{
-		execute_redirections_only(cmd, shell);
-		return ;
-	}
-	if (cmd->next)
-		return (execute_pipeline(cmd, shell));
-	if (execute_builtin(cmd, shell))
-		return ;
-	execute_external(cmd, shell);
 }

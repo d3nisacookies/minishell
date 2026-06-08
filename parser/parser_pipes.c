@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:28:15 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 17:28:16 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:03:05 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ char	**split_pipes(char *input, t_shell *shell)
 
 	pipes = count_pipes(input);
 	if (pipes < 0)
-		return (parser_put_unmatched_quote_error(shell), NULL);
+		return (parser_put_quote_error(shell), NULL);
 	res = malloc(sizeof(char *) * (pipes + 1));
 	if (!res)
 		return (NULL);

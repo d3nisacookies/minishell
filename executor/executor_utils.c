@@ -6,23 +6,12 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 00:00:00 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/04 01:17:09 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 06:51:43 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include <sys/stat.h>
-
-// static int	is_nonexec_file(char *cmd_name)
-// {
-// 	struct stat	st;
-
-// 	if (stat(cmd_name, &st) != 0)
-// 		return (0);
-// 	if (S_ISDIR(st.st_mode))
-// 		return (0);
-// 	return (access(cmd_name, X_OK) != 0);
-// }
 
 char	*resolve_command_path(t_shell *shell, char *cmd_name)
 {
@@ -58,4 +47,22 @@ void	restore_stdio(int saved_in, int saved_out)
 		dup2(saved_out, STDOUT_FILENO);
 		close(saved_out);
 	}
+}
+
+void	execute_command(t_cmd *cmd, t_shell *shell)
+{
+	if (!cmd || !cmd->args)
+		return ;
+	if (executor_expand_args(cmd, shell) == -1)
+		return ((void)(shell->last_exit = 1));
+	if (!cmd->args[0])
+	{
+		execute_redirections_only(cmd, shell);
+		return ;
+	}
+	if (cmd->next)
+		return (execute_pipeline(cmd, shell));
+	if (execute_builtin(cmd, shell))
+		return ;
+	execute_external(cmd, shell);
 }
