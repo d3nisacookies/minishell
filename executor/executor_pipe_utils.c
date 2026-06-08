@@ -43,7 +43,7 @@ static void	run_pipeline_execve(t_pipe_exec *px, t_shell *shell)
 	path = resolve_command_path(shell, px->cmd->args[0]);
 	if (path)
 	{
-		execve(path, px->cmd->args, shell->env);
+		executor_execve_with_fallback(path, px->cmd->args, shell->env);
 		free(path);
 	}
 	executor_exit_exec_error(px->cmd->args[0]);

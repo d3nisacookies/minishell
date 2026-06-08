@@ -135,6 +135,8 @@ char							*resolve_command_path(t_shell *shell,
 									char *cmd_name);
 char							*resolve_path_from_env(t_shell *shell,
 									char *cmd_name);
+int							executor_execve_with_fallback(char *path,
+									char **args, char **env);
 void							execute_pipeline_child(t_pipe_exec *px,
 									t_shell *shell, int *pipefd, int has_next);
 void							wait_pipeline(pid_t *pids, int count,

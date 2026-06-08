@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:13:59 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/09 06:58:19 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:08:46 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	execute_external_child(t_cmd *cmd, t_shell *shell)
 	path = resolve_command_path(shell, cmd->args[0]);
 	if (path)
 	{
-		execve(path, cmd->args, shell->env);
+		executor_execve_with_fallback(path, cmd->args, shell->env);
 		free(path);
 	}
 	executor_exit_exec_error(cmd->args[0]);
@@ -114,4 +114,22 @@ void	execute_external(t_cmd *cmd, t_shell *shell)
 		shell->last_exit = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
 		shell->last_exit = 128 + WTERMSIG(status);
+}
+
+void	execute_command(t_cmd *cmd, t_shell *shell)
+{
+	if (!cmd || !cmd->args)
+		return ;
+	if (executor_expand_args(cmd, shell) == -1)
+		return ((void)(shell->last_exit = 1));
+	if (!cmd->args[0])
+	{
+		execute_redirections_only(cmd, shell);
+		return ;
+	}
+	if (cmd->next)
+		return (execute_pipeline(cmd, shell));
+	if (execute_builtin(cmd, shell))
+		return ;
+	execute_external(cmd, shell);
 }
