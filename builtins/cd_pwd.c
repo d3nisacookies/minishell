@@ -55,7 +55,12 @@ int	builtin_pwd(t_shell *shell)
 {
 	char	*cwd;
 
-	(void)shell;
+	cwd = get_env_value(shell, "PWD");
+	if (cwd && cwd[0] != '\0')
+	{
+		ft_printf("%s\n", cwd);
+		return (0);
+	}
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
 	{
@@ -76,12 +81,16 @@ int	builtin_cd(t_shell *shell, t_cmd *cmd)
 		return (1);
 	if (cd_get_target(shell, cmd, &target))
 		return (1);
-	oldpwd = getcwd(NULL, 0);
+	oldpwd = get_env_value(shell, "PWD");
+	if (oldpwd)
+		oldpwd = ft_strdup(oldpwd);
+	else
+		oldpwd = getcwd(NULL, 0);
 	if (chdir(target) == -1)
 	{
 		perror("cd");
 		free(oldpwd);
 		return (1);
 	}
-	return (cd_update_pwd(shell, oldpwd));
+	return (cd_update_pwd(shell, oldpwd, target));
 }

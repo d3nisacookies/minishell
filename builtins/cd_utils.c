@@ -34,11 +34,11 @@ int	cd_get_target(t_shell *shell, t_cmd *cmd, char **target)
 	return (0);
 }
 
-int	cd_update_pwd(t_shell *shell, char *oldpwd)
+int	cd_update_pwd(t_shell *shell, char *oldpwd, char *target)
 {
 	char	*newpwd;
 
-	newpwd = getcwd(NULL, 0);
+	newpwd = resolve_cd_pwd(oldpwd, target);
 	if (oldpwd)
 	{
 		set_shell_env_var(shell, "OLDPWD", oldpwd);

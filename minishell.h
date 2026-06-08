@@ -184,9 +184,11 @@ int								builtin_cd(t_shell *shell, t_cmd *cmd);
 int								builtin_pwd(t_shell *shell);
 int								cd_get_target(t_shell *shell, t_cmd *cmd,
 									char **target);
+char							*resolve_cd_pwd(char *oldpwd, char *target);
 int								set_shell_env_var(t_shell *shell, char *key,
 									char *value);
-int								cd_update_pwd(t_shell *shell, char *oldpwd);
+int								cd_update_pwd(t_shell *shell, char *oldpwd,
+									char *target);
 
 /* ── Utils ── */
 void							free_split_array(char **arr);

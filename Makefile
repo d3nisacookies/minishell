@@ -8,6 +8,7 @@ SRC		=	main.c \
 			prompt_error_token.c \
 			builtins/cd_pwd.c \
 			builtins/cd_utils.c \
+			builtins/cd_path.c \
 			builtins/echo.c \
 			builtins/echo_utils.c \
 			builtins/export.c \
