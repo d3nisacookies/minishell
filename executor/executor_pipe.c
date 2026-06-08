@@ -28,7 +28,7 @@ static int	run_pipeline_step(t_pipe_exec *px, t_shell *shell)
 	pid_t	pid;
 
 	if (executor_expand_args(px->cmd, shell) == -1)
-		return (shell->last_exit = 1, -1);
+		return (shell->last_exit = 0, -1);
 	has_next = (px->cmd->next != NULL);
 	if (has_next && pipe(pipefd) == -1)
 		return (perror("pipe"), shell->last_exit = 1, -1);

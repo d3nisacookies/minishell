@@ -18,7 +18,7 @@ static int	ambiguous_redirect(t_shell *shell, char *target, char *expanded)
 	ft_putstr_fd(target, 2);
 	ft_putstr_fd(": ambiguous redirect\n", 2);
 	free(expanded);
-	shell->last_exit = 1;
+	shell->last_exit = 0;
 	return (-1);
 }
 

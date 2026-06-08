@@ -38,6 +38,45 @@ char	*resolve_command_path(t_shell *shell, char *cmd_name)
 	return (NULL);
 }
 
+static char	**build_shell_argv(char *path, char **args)
+{
+	char	**argv;
+	int		i;
+	int		argc;
+
+	argc = 0;
+	while (args && args[argc])
+		argc++;
+	argv = malloc(sizeof(char *) * (argc + 2));
+	if (!argv)
+		return (errno = ENOMEM, NULL);
+	argv[0] = "sh";
+	argv[1] = path;
+	i = 1;
+	while (i < argc)
+	{
+		argv[i + 1] = args[i];
+		i++;
+	}
+	argv[argc + 1] = NULL;
+	return (argv);
+}
+
+int	executor_execve_with_fallback(char *path, char **args, char **env)
+{
+	char	**shell_argv;
+
+	execve(path, args, env);
+	if (errno != ENOEXEC)
+		return (-1);
+	shell_argv = build_shell_argv(path, args);
+	if (!shell_argv)
+		return (-1);
+	execve("/bin/sh", shell_argv, env);
+	free(shell_argv);
+	return (-1);
+}
+
 int	handle_builtin_redir_error(t_shell *shell, int saved_in, int saved_out)
 {
 	restore_stdio(saved_in, saved_out);

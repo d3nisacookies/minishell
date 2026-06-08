@@ -85,7 +85,7 @@ static void	execute_external_child(t_cmd *cmd, t_shell *shell)
 	path = resolve_command_path(shell, cmd->args[0]);
 	if (path)
 	{
-		execve(path, cmd->args, shell->env);
+		executor_execve_with_fallback(path, cmd->args, shell->env);
 		free(path);
 	}
 	executor_exit_exec_error(cmd->args[0]);
@@ -121,7 +121,7 @@ void	execute_command(t_cmd *cmd, t_shell *shell)
 	if (!cmd || !cmd->args)
 		return ;
 	if (executor_expand_args(cmd, shell) == -1)
-		return ((void)(shell->last_exit = 1));
+		return ((void)(shell->last_exit = 0));
 	if (!cmd->args[0])
 	{
 		execute_redirections_only(cmd, shell);
