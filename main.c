@@ -17,21 +17,6 @@
 
 volatile sig_atomic_t	g_signal;
 
-static void	free_env_copy(char **env)
-{
-	int	i;
-
-	if (!env)
-		return ;
-	i = 0;
-	while (env[i])
-	{
-		free(env[i]);
-		i++;
-	}
-	free(env);
-}
-
 static void	signal_handler(int signum)
 {
 	g_signal = signum;
@@ -67,20 +52,15 @@ int	main(int ac, char **av, char **envp)
 
 	(void)ac;
 	(void)av;
-	shell.env = copy_env(envp);
-	if (!shell.env)
-	{
-		shell.env = malloc(sizeof(char *));
-		if (!shell.env)
-			return (1);
-		shell.env[0] = NULL;
-	}
+	if (init_shell_state(&shell, envp))
+		return (1);
 	shell.last_exit = 0;
 	shell.should_exit = 0;
+	init_shlvl(&shell);
 	setup_signals();
 	prompt_loop(&shell);
 	status = shell.last_exit;
 	rl_clear_history();
-	free_env_copy(shell.env);
+	free_shell_state(&shell);
 	return (status);
 }

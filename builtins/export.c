@@ -60,7 +60,7 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 	shell->last_exit = 0;
 	if (cmd->argc == 1)
 	{
-		print_export(shell->env);
+		print_export(shell->exported);
 		return ;
 	}
 	i = 1;

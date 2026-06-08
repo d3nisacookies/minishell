@@ -13,8 +13,6 @@
 #include "libft/libft.h"
 #include "minishell.h"
 
-extern char	**environ;
-
 char	**copy_env(char **envp)
 {
 	char	**env;
@@ -98,23 +96,4 @@ void	export_var(t_shell *shell, char *arg)
 		return ;
 	export_update(shell, key, equals + 1);
 	free(key);
-}
-
-void	remove_env_index(t_shell *shell, int index)
-{
-	char	**new_env;
-	int		len;
-
-	if (!shell || !shell->env || index < 0)
-		return ;
-	len = count_env(shell->env);
-	if (index >= len)
-		return ;
-	new_env = malloc(sizeof(char *) * len);
-	if (!new_env)
-		return ;
-	copy_env_skip(new_env, shell->env, len, index);
-	free(shell->env);
-	shell->env = new_env;
-	environ = shell->env;
 }

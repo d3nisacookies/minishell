@@ -30,10 +30,21 @@ static int	is_valid_identifier(char *key)
 	return (1);
 }
 
+static void	unset_key(t_shell *shell, char *key)
+{
+	int		idx;
+
+	idx = find_env_index(shell->env, key);
+	if (idx != -1)
+		remove_env_index(shell, idx);
+	idx = find_env_index(shell->exported, key);
+	if (idx != -1)
+		remove_export_index(shell, idx);
+}
+
 void	builtin_unset(t_shell *shell, t_cmd *cmd)
 {
 	int		i;
-	int		idx;
 	char	*key;
 
 	if (!shell || !cmd || !cmd->args)
@@ -42,18 +53,14 @@ void	builtin_unset(t_shell *shell, t_cmd *cmd)
 	i = 1;
 	while (i < cmd->argc)
 	{
-		key = cmd->args[i];
+		key = cmd->args[i++];
 		if (!is_valid_identifier(key))
 		{
 			ft_putstr_fd("unset: not a valid identifier: ", 2);
 			ft_putendl_fd(key, 2);
 			shell->last_exit = 1;
-			i++;
 			continue ;
 		}
-		idx = find_env_index(shell->env, key);
-		if (idx != -1)
-			remove_env_index(shell, idx);
-		i++;
+		unset_key(shell, key);
 	}
 }

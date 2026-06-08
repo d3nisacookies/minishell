@@ -117,6 +117,7 @@ void	prompt_loop(t_shell *shell)
 		input = readline("$> ");
 		if (input == NULL)
 		{
+			shell->last_exit = 130;
 			write(1, "\n", 1);
 			break ;
 		}

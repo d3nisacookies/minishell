@@ -13,6 +13,8 @@ SRC		=	main.c \
 			builtins/export.c \
 			builtins/unset.c \
 			env/env.c \
+			env/env_init.c \
+			env/env_remove.c \
 			env/env_utils.c \
 			executor/executor_expand_arg.c \
 			executor/executor_expand.c \

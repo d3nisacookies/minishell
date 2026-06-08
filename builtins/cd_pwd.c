@@ -36,15 +36,19 @@ char	*get_env_value(t_shell *shell, char *key)
 	int		idx;
 	char	*equals;
 
-	if (!shell || !shell->env || !key || key[0] == '\0')
+	if (!shell || !key || key[0] == '\0')
 		return (NULL);
 	idx = find_env_index(shell->env, key);
-	if (idx == -1)
-		return (NULL);
-	equals = ft_strchr(shell->env[idx], '=');
-	if (!equals)
+	if (idx != -1)
+	{
+		equals = ft_strchr(shell->env[idx], '=');
+		if (!equals)
+			return ("");
+		return (equals + 1);
+	}
+	if (find_env_index(shell->exported, key) != -1)
 		return ("");
-	return (equals + 1);
+	return (NULL);
 }
 
 int	builtin_pwd(t_shell *shell)

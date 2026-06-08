@@ -14,6 +14,20 @@
 
 extern char	**environ;
 
+static void	set_var_entry(char ***vars, char *key, char *new_entry)
+{
+	int	idx;
+
+	idx = find_env_index(*vars, key);
+	if (idx != -1)
+	{
+		free((*vars)[idx]);
+		(*vars)[idx] = new_entry;
+	}
+	else
+		append_env(vars, new_entry);
+}
+
 int	count_env(char **envp)
 {
 	int	i;
@@ -43,46 +57,25 @@ char	*make_env_entry(char *key, char *value)
 
 void	export_existing(t_shell *shell, char *arg)
 {
-	if (find_env_index(shell->env, arg) == -1)
-	{
-		append_env(&shell->env, ft_strdup(arg));
-		environ = shell->env;
-	}
+	if (find_env_index(shell->exported, arg) == -1)
+		append_env(&shell->exported, ft_strdup(arg));
 }
 
 void	export_update(t_shell *shell, char *key, char *value)
 {
-	char	*new_entry;
-	int		idx;
+	char	*export_entry;
+	char	*env_entry;
 
-	new_entry = make_env_entry(key, value);
-	if (!new_entry)
+	export_entry = make_env_entry(key, value);
+	if (!export_entry)
 		return ;
-	idx = find_env_index(shell->env, key);
-	if (idx != -1)
+	env_entry = ft_strdup(export_entry);
+	if (!env_entry)
 	{
-		free(shell->env[idx]);
-		shell->env[idx] = new_entry;
+		free(export_entry);
+		return ;
 	}
-	else
-		append_env(&shell->env, new_entry);
+	set_var_entry(&shell->exported, key, export_entry);
+	set_var_entry(&shell->env, key, env_entry);
 	environ = shell->env;
-}
-
-void	copy_env_skip(char **new_env, char **old_env, int len, int skip)
-{
-	int	old_i;
-	int	new_i;
-
-	old_i = 0;
-	new_i = 0;
-	while (old_i < len)
-	{
-		if (old_i == skip)
-			free(old_env[old_i]);
-		else
-			new_env[new_i++] = old_env[old_i];
-		old_i++;
-	}
-	new_env[new_i] = NULL;
 }

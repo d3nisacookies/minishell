@@ -66,6 +66,7 @@ typedef struct s_cmd
 typedef struct s_shell
 {
 	char						**env;
+	char						**exported;
 	int							last_exit;
 	int							should_exit;
 	int							parser_status;
@@ -164,11 +165,15 @@ void							export_existing(t_shell *shell, char *arg);
 void							export_update(t_shell *shell, char *key,
 									char *value);
 void							remove_env_index(t_shell *shell, int index);
+void							remove_export_index(t_shell *shell, int index);
 void							copy_env_skip(char **new_env, char **old_env,
 									int len, int skip);
 char							*get_env_value(t_shell *shell, char *key);
 char							*expand_argument(t_shell *shell, char *arg,
 									int quote);
+int								init_shell_state(t_shell *shell, char **envp);
+void							init_shlvl(t_shell *shell);
+void							free_shell_state(t_shell *shell);
 
 /* ── Builtins ── */
 void							builtin_export(t_shell *shell, t_cmd *cmd);
