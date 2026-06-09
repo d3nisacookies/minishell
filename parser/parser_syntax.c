@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:28:41 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 17:28:42 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:03:00 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,6 @@ int	parser_validate_syntax(char *input, t_shell *shell)
 		i++;
 	}
 	if (quote)
-		return (parser_put_unmatched_quote_error(shell), -1);
+		return (parser_put_quote_error(shell), -1);
 	return (0);
 }

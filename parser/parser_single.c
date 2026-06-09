@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:28:33 by akaung            #+#    #+#             */
-/*   Updated: 2026/05/30 17:28:34 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:03:02 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static int	handle_word(t_cmd *cmd, char *input, int *i, t_shell *shell)
 
 static int	fill_args(t_cmd *cmd, char *input, t_shell *shell)
 {
-	int		i;
+	int	i;
 
 	i = 0;
 	while (input[i])
@@ -93,7 +93,7 @@ t_cmd	*parse_single(char *input, t_shell *shell)
 	argc = parser_count_args(input);
 	if (argc < 0)
 	{
-		parser_put_unmatched_quote_error(shell);
+		parser_put_quote_error(shell);
 		return (NULL);
 	}
 	cmd = alloc_cmd(argc);
@@ -102,7 +102,7 @@ t_cmd	*parse_single(char *input, t_shell *shell)
 	if (fill_args(cmd, input, shell) == -1)
 	{
 		free_partial_cmd(cmd);
-		parser_put_unmatched_quote_error(shell);
+		parser_put_quote_error(shell);
 		return (NULL);
 	}
 	return (cmd);

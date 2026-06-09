@@ -177,7 +177,7 @@ The notes below explain functions **line by line in grouped source ranges** so y
 
 ### `parser/parser_errors.c`
 
-#### `parser_put_unmatched_quote_error` (`parser_errors.c:15-19`)
+#### `parser_put_quote_error` (`parser_errors.c:15-19`)
 - Sets parser status `2` and prints the unmatched-quote diagnostic.
 
 #### `parser_put_pipe_error` (`parser_errors.c:21-24`)

@@ -6,23 +6,12 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 00:00:00 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/04 01:17:09 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:11:45 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include <sys/stat.h>
-
-// static int	is_nonexec_file(char *cmd_name)
-// {
-// 	struct stat	st;
-
-// 	if (stat(cmd_name, &st) != 0)
-// 		return (0);
-// 	if (S_ISDIR(st.st_mode))
-// 		return (0);
-// 	return (access(cmd_name, X_OK) != 0);
-// }
 
 char	*resolve_command_path(t_shell *shell, char *cmd_name)
 {

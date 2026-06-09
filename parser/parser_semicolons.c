@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:28:30 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/02 17:50:59 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 07:03:04 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ static int	fill_loop(char **list, char *input, int *start, char *quote)
 		if (!quote_state_changed(quote, input[i]) && *quote == 0
 			&& input[i] == ';')
 		{
-			list_index = append_segment(list, list_index,
-					ft_substr(input, *start, i - *start));
+			list_index = append_segment(list, list_index, ft_substr(input,
+						*start, i - *start));
 			if (list_index == -1)
 				return (-1);
 			*start = i + 1;
@@ -66,10 +66,10 @@ static int	fill_segments(char **list, char *input, t_shell *shell)
 	if (quote != 0)
 	{
 		list[list_index] = NULL;
-		return (parser_put_unmatched_quote_error(shell), -1);
+		return (parser_put_quote_error(shell), -1);
 	}
-	list_index = append_segment(list, list_index,
-			ft_substr(input, start, ft_strlen(input) - start));
+	list_index = append_segment(list, list_index, ft_substr(input, start,
+				ft_strlen(input) - start));
 	if (list_index == -1)
 		return (-1);
 	list[list_index] = NULL;
