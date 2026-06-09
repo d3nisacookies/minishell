@@ -29,6 +29,7 @@ SRC		=	main.c \
 			executor/executor_pipe.c \
 			executor/executor_pipe_utils.c \
 			executor/executor_pipe_init.c \
+			executor/handle_wait_status.c \
 			parser/parser.c \
 			parser/parser_count_args.c \
 			parser/parser_errors.c \

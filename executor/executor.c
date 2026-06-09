@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 17:13:59 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/09 07:10:16 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 13:33:15 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,8 +110,5 @@ void	execute_external(t_cmd *cmd, t_shell *shell)
 		execute_external_child(cmd, shell);
 	waitpid(pid, &status, 0);
 	restore_shell_signals(&old_int, &old_quit);
-	if (WIFEXITED(status))
-		shell->last_exit = WEXITSTATUS(status);
-	else if (WIFSIGNALED(status))
-		shell->last_exit = 128 + WTERMSIG(status);
+	handle_wait_status(status, shell);
 }

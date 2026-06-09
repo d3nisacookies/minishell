@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 00:00:00 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/04 00:58:46 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 13:28:21 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,14 @@ void	wait_pipeline(pid_t *pids, int count, pid_t last_pid, t_shell *shell)
 			if (WIFEXITED(status))
 				shell->last_exit = WEXITSTATUS(status);
 			else if (WIFSIGNALED(status))
-				shell->last_exit = 128 + WTERMSIG(status);
+			{
+				if (pids[i] == last_pid)
+					shell->last_exit = 128 + WTERMSIG(status);
+				if (WTERMSIG(status) == SIGQUIT)
+					ft_printf("Quit (core dumped)\n");
+				else if (WTERMSIG(status) == SIGINT)
+					ft_printf("\n");
+			}
 		}
 		i++;
 	}

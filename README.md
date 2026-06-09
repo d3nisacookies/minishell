@@ -1,4 +1,7 @@
+*This project has been created as part
+of the 42 curriculum by jculleto, akaung*
 # Minishell
+## DESCRIPTION
 
 A small Unix shell written in C (42 curriculum project).
 
@@ -38,19 +41,15 @@ parsing, and error handling.
 - Signal handling tuned for the interactive shell, child processes, and heredoc
 - `Ctrl-D` (EOF) handling to exit the shell
 
-## Build and run
+## Instructions
 
 Requirements
 
-- `gcc`
+- `cc`
 - `make` (GNU make)
 - `libreadline` development headers (`libreadline-dev` on Debian/Ubuntu)
 
 On Debian/Ubuntu:
-
-```bash
-sudo apt install build-essential libreadline-dev
-```
 
 Build:
 
@@ -190,26 +189,6 @@ to left-to-right execution of pipelines. The limitation is that a linked list
 doesn't express more advanced grammar (e.g., `&&`, `||`, or grouped expressions)
 without additional structure.
 
-## Testing
-
-This repository includes a `minishell_tester/` helper used in the 42 community.
-From inside that directory:
-
-```bash
-./tester
-```
-
-Run specific test groups, for example:
-
-```bash
-./tester builtins
-./tester pipes
-./tester redirects
-./tester syntax
-```
-
-Manual test suites are available under `minishell_tester/manual_tests/`.
-
 ## Memory checks
 
 When running Valgrind use the provided suppression file to ignore readline's
@@ -223,6 +202,8 @@ valgrind --leak-check=full --show-leak-kinds=all \
 Note: `readline` may keep reachable memory until process exit; the suppression
 file helps focus the report on Minishell's allocations.
 
+We also have a supression file if you want to check the leaks with. 
+
 ## Known scope
 
 This project targets the mandatory 42 Minishell requirements. It is not a full
@@ -234,3 +215,8 @@ subshells, command substitution, globbing, and job control.
 - jculleto
 - akaung
 
+## Resources
+- Youtube on building a shell
+- The C library for the readline related functions.
+- The AST : https://dev.to/balapriya/abstract-syntax-tree-ast-explained-in-plain-english-1h38
+- AI was used in research and syntax.

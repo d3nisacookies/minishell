@@ -6,7 +6,7 @@
 /*   By: akaung <akaung@student.42.sg>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/30 18:11:01 by akaung            #+#    #+#             */
-/*   Updated: 2026/06/09 07:11:11 by akaung           ###   ########.fr       */
+/*   Updated: 2026/06/09 13:34:19 by akaung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ int								execute_builtin(t_cmd *cmd, t_shell *shell);
 void							execute_external_child(t_cmd *cmd,
 									t_shell *shell);
 void							execute_external(t_cmd *cmd, t_shell *shell);
+void							handle_wait_status(int status, t_shell *shell);
 
 /* ── Redirections ── */
 int								apply_redirections(t_cmd *cmd, t_shell *shell);
